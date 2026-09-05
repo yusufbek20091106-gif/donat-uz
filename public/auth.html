@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+  <title>DonatUZ — Kirish va Ro'yxatdan o'tish</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/tirikchilik.css">
+  <style>
+    body {
+      background-color: #f7f8f9 !important;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Top navbar */
+    .auth-header {
+      background: #ffffff;
+      border-bottom: 1px solid #eef0f2;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .auth-logo {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      color: #000000;
+      text-decoration: none;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+    }
+    .auth-logo span { color: #ffc000; }
+    .back-link {
+      color: #64748b;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: #000; }
+
+    /* Asosiy Markaziy Karta */
+    .auth-wrapper {
+      max-width: 440px;
+      width: 100%;
+      margin: 40px auto;
+      padding: 0 16px;
+    }
+    .auth-card {
+      background: #ffffff;
+      border-radius: 28px;
+      border: 1px solid #eef2f6;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+      padding: 36px 32px;
+      text-align: center;
+    }
+
+    .auth-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .auth-sub {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    /* Tabs: Kirish / Ro'yxatdan o'tish */
+    .auth-tabs {
+      background: #f1f5f9;
+      border-radius: 14px;
+      padding: 4px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      margin-bottom: 24px;
+    }
+    .auth-tab {
+      background: transparent;
+      border: none;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #64748b;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .auth-tab.active {
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    /* Input guruhlari */
+    .input-wrap {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .input-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+    .phone-box {
+      display: flex;
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    .phone-box:focus-within {
+      background: #ffffff;
+      border-color: #ffc000;
+      box-shadow: 0 0 0 3px rgba(255, 192, 0, 0.2);
+    }
+    .phone-prefix {
+      background: #f1f5f9;
+      border-right: 1.5px solid #e2e8f0;
+      padding: 14px 16px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #334155;
+      display: flex;
+      align-items: center;
+    }
+    .phone-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #0f172a;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .form-ctrl {
+      width: 100%;
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 15px;
+      color: #0f172a;
+      outline: none;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .form-ctrl:focus {
+      background: #ffffff;
+      border-color: #ffc000;
+      box-shadow: 0 0 0 3px rgba(255, 192, 0, 0.2);
+    }
+
+    /* Checkbox & Forgot */
+    .remember-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      font-size: 13px;
+    }
+    .check-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #475569;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .check-wrap input { width: 16px; height: 16px; accent-color: #ffc000; }
+    .forgot-link { color: #64748b; text-decoration: none; font-weight: 600; }
+    .forgot-link:hover { color: #ffc000; }
+
+    /* Asosiy Sariq Tugma */
+    .btn-auth-submit {
+      width: 100%;
+      background: #ffc000;
+      color: #000000;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 192, 0, 0.35);
+      transition: all 0.2s;
+    }
+    .btn-auth-submit:hover { background: #eab308; transform: translateY(-1px); }
+
+    /* Divider */
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      margin: 24px 0;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e2e8f0;
+    }
+    .auth-divider span { padding: 0 12px; }
+
+    /* Ijtimoiy tarmoqlar orqali kirish */
+    .social-auth-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .btn-social {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e293b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-social:hover {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Footer */
+    .auth-footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+  </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+</head>
+<body>
+
+  <!-- Top bar -->
+  <header class="auth-header">
+    <a href="/" class="auth-logo">DONAT<span>UZ</span></a>
+    <a href="/" class="back-link">← Asosiy sahifaga qaytish</a>
+  </header>
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <h1 class="auth-title" id="authHeading">Xush kelibsiz!</h1>
+      <p class="auth-sub" id="authSubtitle">Hisobingizga kirish uchun telefon raqamingizni kiriting</p>
+
+      <!-- Tabs: Kirish / Ro'yxatdan o'tish -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuth('login')">Kirish</button>
+        <button class="auth-tab" onclick="switchAuth('register')">Ro'yxatdan o'tish</button>
+      </div>
+
+      <form id="authForm">
+        <div class="input-wrap" id="nameField" style="display: none;">
+          <label class="input-label">Ismingiz yoki Taxallusingiz</label>
+          <input type="text" id="regName" class="form-ctrl" placeholder="Masalan: Bekzod" />
+        </div>
+
+        <div class="input-wrap">
+          <label class="input-label">Telefon raqamingiz</label>
+          <div class="phone-box">
+            <div class="phone-prefix">+998</div>
+            <input type="tel" id="phoneNumber" class="phone-input" placeholder="90 123 45 67" maxlength="9" required />
+          </div>
+        </div>
+
+        <div class="input-wrap" id="passwordField">
+          <label class="input-label">Parol</label>
+          <input type="password" id="userPass" class="form-ctrl" placeholder="Parolni kiriting" required />
+        </div>
+
+        <div class="remember-row">
+          <label class="check-wrap">
+            <input type="checkbox" checked />
+            Eslab qolish
+          </label>
+          <a href="#" class="forgot-link">Parolni unutdingizmi?</a>
+        </div>
+
+        <button type="submit" class="btn-auth-submit" id="submitBtn">Davom etish →</button>
+      </form>
+
+      <!-- Tezkor ijtimoiy kirish -->
+      <div class="auth-divider"><span>Yoki orqali kiring</span></div>
+      <div class="social-auth-grid">
+        <button class="btn-social" onclick="alert('Telegram Login orqali tezkor kirish!')">
+          <span>✈️</span> Telegram
+        </button>
+        <button class="btn-social" onclick="alert('Google hisobi orqali kirish!')">
+          <span>🌐</span> Google
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="auth-footer">
+    To'lov va ma'lumotlar xavfsizligi kafolatlangan.<br>
+    © 2026 DONATUZ. Barcha huquqlar himoyalangan.
+  </footer>
+
+  <script>
+    let currentMode = 'login';
+
+    function switchAuth(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const nameField = document.getElementById('nameField');
+      const heading = document.getElementById('authHeading');
+      const subtitle = document.getElementById('authSubtitle');
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (mode === 'register') {
+        nameField.style.display = 'block';
+        heading.innerText = 'Ro\'yxatdan o\'tish';
+        subtitle.innerText = 'Platformada o\'z mualliflik profilingizni oching';
+        submitBtn.innerText = 'Akkount yaratish →';
+      } else {
+        nameField.style.display = 'none';
+        heading.innerText = 'Xush kelibsiz!';
+        subtitle.innerText = 'Hisobingizga kirish uchun ma\'lumotlaringizni kiriting';
+        submitBtn.innerText = 'Davom etish →';
+      }
+    }
+
+    document.getElementById('authForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const phone = document.getElementById('phoneNumber').value;
+      alert(`Muvaffaqiyatli! +998${phone} raqamiga SMS kod yuborildi. Boshqaruv kabinetiga yo'naltirilmoqda...`);
+      window.location.href = '/dashboard.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+﻿<!DOCTYPE html>
+<html lang="uz" data-theme="neon">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strimer Boshqaruv Paneli Pro</title>
+  <style>
+    :root {
+      --bg: #090b12;
+      --panel-bg: #131726;
+      --border: #232a45;
+      --text: #ffffff;
+      --text-muted: #8790ad;
+      --primary: #00ff88;
+      --primary-glow: rgba(0, 255, 136, 0.35);
+      --gold: #ffd700;
+      --input-bg: #0b0d16;
+    }
+
+    [data-theme="minimal"] {
+      --bg: #f8fafc;
+      --panel-bg: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-glow: rgba(37, 99, 235, 0.2);
+      --gold: #d97706;
+      --input-bg: #f1f5f9;
+    }
+
+    [data-theme="gold"] {
+      --bg: #0d0c0a;
+      --panel-bg: #181611;
+      --border: #3b3320;
+      --text: #fff6e0;
+      --text-muted: #a6987c;
+      --primary: #f59e0b;
+      --primary-glow: rgba(245, 158, 11, 0.35);
+      --gold: #f59e0b;
+      --input-bg: #110f0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 16px; min-height: 100vh; transition: 0.3s; }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    /* Header */
+    .nav-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px 20px;
+    }
+    .brand { font-size: 22px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+    
+    .theme-group { display: flex; gap: 6px; }
+    .t-btn {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .t-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
+    [data-theme="minimal"] .t-btn.active { color: #fff; }
+
+    /* Statistika: Mobilda 1 ustun, planshetda 2, kompyuterda 3 */
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    @media (min-width: 600px) { .stats-row { grid-template-columns: repeat(3, 1fr); } }
+
+    .stat-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .stat-card h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+    .stat-card .val { font-size: 26px; font-weight: 800; }
+    .stat-card .val.primary { color: var(--primary); }
+    .stat-card .val.gold { color: var(--gold); }
+
+    /* 2 ta asosiy blok: Mobilda tagma-tag, Desktopda yonma-yon */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (min-width: 850px) { .main-grid { grid-template-columns: 1.2fr 0.8fr; } }
+
+    .box {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+    }
+    .box h3 { font-size: 17px; margin-bottom: 14px; color: var(--text); }
+
+    .widget-item { margin-bottom: 12px; }
+    .widget-item label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
+    .copy-row { display: flex; gap: 8px; }
+    .copy-row input {
+      flex: 1;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: var(--primary);
+      font-size: 13px;
+      font-family: monospace;
+      outline: none;
+    }
+    .btn-copy {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-weight: 700;
+      border-radius: 10px;
+      padding: 0 14px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .btn-copy:hover { background: var(--primary); color: #000; }
+    [data-theme="minimal"] .btn-copy:hover { color: #fff; }
+
+    .test-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .btn-test {
+      flex: 1;
+      min-width: 130px;
+      background: var(--gold);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-test.blue { background: #0284c7; color: #fff; }
+
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
+    .ctrl {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }
+    .btn-save {
+      width: 100%;
+      background: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    [data-theme="minimal"] .btn-save { color: #fff; }
+
+    /* Jadval */
+    .table-box {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; min-width: 500px; }
+    th { text-align: left; padding: 8px 10px; font-size: 12px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px; font-size: 13px; border-bottom: 1px solid var(--border); }
+    .badge { background: var(--input-bg); color: var(--primary); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; border: 1px solid var(--border); }
+  </style>
+  <script src="/socket.io/socket.io.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+</head>
+<body>
+
+  <div class="container">
+    <!-- Navbar -->
+    <div class="nav-bar">
+      <div class="brand">🔥 DonatUZ <span style="font-size:12px; color:var(--text-muted); font-weight:600;">Control</span></div>
+      
+      <!-- Theme Switcher -->
+      <div class="theme-group">
+        <button class="t-btn active" onclick="applyTheme('neon')">⚡ Neon</button>
+        <button class="t-btn" onclick="applyTheme('minimal')">⚪ Clean</button>
+        <button class="t-btn" onclick="applyTheme('gold')">👑 Gold</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <h4>Jami Daromad</h4>
+        <div class="val primary" id="valBal">0 so'm</div>
+      </div>
+      <div class="stat-card">
+        <h4>Donatlar Soni</h4>
+        <div class="val" id="valCnt">0 ta</div>
+      </div>
+      <div class="stat-card">
+        <h4>Maqsad Ko'rsatkichi</h4>
+        <div class="val gold" id="valGoal">0%</div>
+      </div>
+    </div>
+
+    <!-- Asosiy panellar -->
+    <div class="main-grid">
+      <!-- 1. OBS havolalari va test -->
+      <div class="box">
+        <h3>🔴 OBS Studio Vidjet Havolalari</h3>
+
+        <div class="widget-item">
+          <label>1. Alert Vidjeti (Ovoz + Animatsiya + Video):</label>
+          <div class="copy-row">
+            <input type="text" id="linkAlert" readonly />
+            <button class="btn-copy" onclick="copyText('linkAlert')">Nusxa</button>
+          </div>
+        </div>
+
+        <div class="widget-item">
+          <label>2. Maqsad Paneli (Goal Bar):</label>
+          <div class="copy-row">
+            <input type="text" id="linkGoal" readonly />
+            <button class="btn-copy" onclick="copyText('linkGoal')">Nusxa</button>
+          </div>
+        </div>
+
+        <div class="widget-item">
+          <label>3. Top Donaterlar (Leaderboard):</label>
+          <div class="copy-row">
+            <input type="text" id="linkTop" readonly />
+            <button class="btn-copy" onclick="copyText('linkTop')">Nusxa</button>
+          </div>
+        </div>
+
+        <div class="test-actions">
+          <button class="btn-test" onclick="sendTestAlert(50000, 'Oddiy donat sinovi!')">⚡ Test Donat</button>
+          <button class="btn-test blue" onclick="sendTestAlert(100000, 'Klip bilan donat!', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')">🎬 Test Video Donat</button>
+        </div>
+      </div>
+
+      <!-- 2. Efir sozlamalari -->
+      <div class="box">
+        <h3>⚙️ Efir Sozlamalari</h3>
+
+        <div class="form-group">
+          <label>Maqsad Nomi</label>
+          <input type="text" id="goalTitle" class="ctrl" />
+        </div>
+        <div class="form-group">
+          <label>Maqsad Summasi (so'm)</label>
+          <input type="number" id="goalTarget" class="ctrl" />
+        </div>
+        <div class="form-group">
+          <label>Alert Ovoz Effekti</label>
+          <select id="alertSound" class="ctrl">
+            <option value="winner">Winner Fanfare (PUBG)</option>
+            <option value="coin">Coin Clink (Mario)</option>
+            <option value="chime">Soft Chime</option>
+          </select>
+        </div>
+        <button class="btn-save" onclick="saveConfig()">Saqlash va Yangilash</button>
+      </div>
+    </div>
+
+    <!-- Donatlar tarixi -->
+    <div class="table-box">
+      <h3 style="margin-bottom:12px; font-size:16px;">📜 Tushumlar Tarixi</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Vaqt</th>
+            <th>Ism / Nik</th>
+            <th>Summa</th>
+            <th>Xabar</th>
+            <th>Turi</th>
+            <th>Tizim</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const origin = window.location.origin;
+    document.getElementById('linkAlert').value = origin + '/widget.html';
+    document.getElementById('linkGoal').value = origin + '/goal.html';
+    document.getElementById('linkTop').value = origin + '/top.html';
+
+    function applyTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function copyText(id) {
+      const el = document.getElementById(id);
+      navigator.clipboard.writeText(el.value);
+      alert('Nusxa olindi! OBS dasturiga Browser Source qilib qo`yishingiz mumkin.');
+    }
+
+    async function refreshData() {
+      const res = await fetch('/api/stats');
+      const data = await res.json();
+
+      document.getElementById('valBal').innerText = Number(data.balance).toLocaleString('uz-UZ') + ' so`m';
+      document.getElementById('valCnt').innerText = data.count + ' ta';
+
+      if (data.goal) {
+        document.getElementById('goalTitle').value = data.goal.title;
+        document.getElementById('goalTarget').value = data.goal.target;
+        const p = Math.min(Math.round((data.goal.current / data.goal.target) * 100), 100);
+        document.getElementById('valGoal').innerText = p + '%';
+      }
+
+      if (data.settings && data.settings.alertSound) {
+        document.getElementById('alertSound').value = data.settings.alertSound;
+      }
+
+      const tbody = document.getElementById('historyBody');
+      tbody.innerHTML = '';
+      data.donations.forEach(d => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color:var(--text-muted);">${d.date}</td>
+          <td style="font-weight:700; color:var(--primary);">${d.username}</td>
+          <td style="font-weight:800; color:var(--gold);">${Number(d.amount).toLocaleString('uz-UZ')} so'm</td>
+          <td>${d.message || '-'}</td>
+          <td>${d.youtubeId ? '🎬 Video' : '💬 Matn'}</td>
+          <td><span class="badge">${d.system}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function saveConfig() {
+      const title = document.getElementById('goalTitle').value;
+      const target = document.getElementById('goalTarget').value;
+      const sound = document.getElementById('alertSound').value;
+
+      await fetch('/api/goal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, target })
+      });
+
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alertSound: sound })
+      });
+
+      alert('Sozlamalar yangilandi!');
+      refreshData();
+    }
+
+    async function sendTestAlert(amt, msg, yt) {
+      await fetch('/api/donate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: 'Tester',
+          amount: amt,
+          message: msg,
+          youtubeUrl: yt || '',
+          paymentMethod: 'Click'
+        })
+      });
+    }
+
+    const socket = io();
+    socket.on('new_donation', () => refreshData());
+    socket.on('goal_updated', () => refreshData());
+
+    refreshData();
+  </script>
+</body>
+</html>

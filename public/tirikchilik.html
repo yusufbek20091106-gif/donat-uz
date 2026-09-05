@@ -1,0 +1,338 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Azamat Shamuzafarov | Tirikchilik Uslubida Donat</title>
+  <style>
+    :root {
+      --bg: #faf7f2;
+      --card-bg: #ffffff;
+      --border: #ede6dd;
+      --text: #2d261e;
+      --text-muted: #80766a;
+      --coffee: #d97706;
+      --coffee-light: #fef3c7;
+      --coffee-hover: #b45309;
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px 16px; min-height: 100vh; display: flex; justify-content: center; }
+    .page-container { width: 100%; max-width: 620px; }
+
+    /* Muallif profili (Banner + Avatar) */
+    .profile-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      margin-bottom: 20px;
+    }
+    .banner {
+      height: 140px;
+      background: linear-gradient(135deg, #f59e0b, #d97706, #78350f);
+      position: relative;
+    }
+    .profile-body {
+      padding: 0 24px 24px;
+      text-align: center;
+      position: relative;
+    }
+    .avatar-wrap {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: #fff;
+      border: 4px solid #fff;
+      margin: -45px auto 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 42px;
+    }
+    .author-name { font-size: 22px; font-weight: 800; color: #1c1917; }
+    .author-bio { font-size: 14px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
+    .stats-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--coffee-light);
+      color: var(--coffee-hover);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-top: 14px;
+    }
+
+    /* Kofe donat qutisi (Tirikchilik uslubida) */
+    .donation-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      margin-bottom: 24px;
+    }
+    .box-title { font-size: 17px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+    /* Qahva hisoblagichi (☕ x 1, ☕ x 3, ☕ x 5) */
+    .coffee-counter {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fdfaf6;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 18px;
+      margin-bottom: 18px;
+    }
+    .coffee-icon-text {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--coffee);
+    }
+    .coffee-btns {
+      display: flex;
+      gap: 6px;
+    }
+    .c-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: 0.2s;
+    }
+    .c-btn.active, .c-btn:hover {
+      background: var(--coffee);
+      color: #fff;
+      border-color: var(--coffee);
+    }
+
+    /* Form maydonlari */
+    .input-field { margin-bottom: 14px; }
+    .input-field input, .input-field textarea {
+      width: 100%;
+      background: #faf8f5;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      transition: 0.2s;
+    }
+    .input-field input:focus, .input-field textarea:focus {
+      border-color: var(--coffee);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+    }
+
+    /* Katta To'lov tugmasi */
+    .btn-coffee-pay {
+      width: 100%;
+      background: var(--coffee);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(217, 119, 6, 0.35);
+      transition: 0.2s;
+    }
+    .btn-coffee-pay:hover { background: var(--coffee-hover); transform: translateY(-1px); }
+    .btn-coffee-pay:active { transform: scale(0.99); }
+
+    /* Qo'llab-quvvatlaganlar lentasi (Supporters Feed) */
+    .feed-header { font-size: 17px; font-weight: 800; margin-bottom: 12px; }
+    .feed-list { display: flex; flex-direction: column; gap: 10px; }
+    .feed-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      gap: 12px;
+    }
+    .feed-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #f3eae0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .feed-content { flex: 1; }
+    .feed-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .feed-name { font-size: 14px; font-weight: 700; color: #1c1917; }
+    .feed-cups { font-size: 13px; font-weight: 700; color: var(--coffee); }
+    .feed-msg { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+  </style>
+  <script src="/socket.io/socket.io.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+</head>
+<body>
+
+  <div class="page-container">
+    <!-- Muallif kartasi -->
+    <div class="profile-card">
+      <div class="banner"></div>
+      <div class="profile-body">
+        <div class="avatar-wrap">☕</div>
+        <h1 class="author-name">Azamat Shamuzafarov</h1>
+        <p class="author-bio">Dizayn, texnologiyalar va o'zbek interneti haqida podkast va blog yuritaman.</p>
+        <div class="stats-pill">❤️ 142 kishi qahva bilan siyladi</div>
+      </div>
+    </div>
+
+    <!-- Tirikchilik Kofe Qutisi -->
+    <div class="donation-box">
+      <div class="box-title">☕ Azamatga qahva ulashing</div>
+
+      <!-- Kofe miqdori -->
+      <div class="coffee-counter">
+        <div class="coffee-icon-text">
+          <span>☕</span>
+          <span id="coffeeCountText">× 1 ta qahva</span>
+        </div>
+        <div class="coffee-btns">
+          <button class="c-btn active" onclick="setCup(1, 15000)">1</button>
+          <button class="c-btn" onclick="setCup(3, 45000)">3</button>
+          <button class="c-btn" onclick="setCup(5, 75000)">5</button>
+          <button class="c-btn" onclick="setCustomCup()">✏️</button>
+        </div>
+      </div>
+
+      <form id="coffeeForm">
+        <div class="input-field">
+          <input type="text" id="donorName" placeholder="Ismingiz yoki @telegram_nik" required />
+        </div>
+        <div class="input-field">
+          <textarea id="donorMsg" rows="3" placeholder="Azamatga iliq so'zlar yoki savolingiz..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-coffee-pay" id="payBtn">
+          15,000 so'm ehson qilish (Click / Payme) ☕
+        </button>
+      </form>
+    </div>
+
+    <!-- Qo'llab-quvvatlaganlar lentasi (Tirikchilikdagi kabi) -->
+    <div class="feed-header">Oxirgi qahva ulashganlar</div>
+    <div class="feed-list" id="feedList">
+      <div class="feed-item">
+        <div class="feed-avatar">☕</div>
+        <div class="feed-content">
+          <div class="feed-top">
+            <span class="feed-name">Bobur Akramov</span>
+            <span class="feed-cups">☕ × 3 ta qahva</span>
+          </div>
+          <div class="feed-msg">Podkastlar uchun rahmat, doim kutib eshitamiz!</div>
+        </div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-avatar">☕</div>
+        <div class="feed-content">
+          <div class="feed-top">
+            <span class="feed-name">Dilorom</span>
+            <span class="feed-cups">☕ × 1 ta qahva</span>
+          </div>
+          <div class="feed-msg">Kofe uchun ozgina bo'lsa ham hissam. Omad!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentAmount = 15000;
+    let cupCount = 1;
+
+    function setCup(count, amount) {
+      document.querySelectorAll('.c-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      cupCount = count;
+      currentAmount = amount;
+      document.getElementById('coffeeCountText').innerText = `× ${count} ta qahva`;
+      document.getElementById('payBtn').innerText = `${Number(amount).toLocaleString('uz-UZ')} so'm ehson qilish (Click / Payme) ☕`;
+    }
+
+    function setCustomCup() {
+      const custom = prompt('Xohlagan summani kiriting (so\'mda):', '30000');
+      if (custom && !isNaN(custom) && custom >= 5000) {
+        document.querySelectorAll('.c-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        currentAmount = parseInt(custom, 10);
+        document.getElementById('coffeeCountText').innerText = `${Number(custom).toLocaleString('uz-UZ')} so'm`;
+        document.getElementById('payBtn').innerText = `${Number(custom).toLocaleString('uz-UZ')} so'm ehson qilish (Click / Payme) ☕`;
+      }
+    }
+
+    document.getElementById('coffeeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('donorName').value;
+      const msg = document.getElementById('donorMsg').value;
+
+      try {
+        const res = await fetch('/api/donate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: name,
+            amount: currentAmount,
+            message: msg,
+            paymentMethod: 'Click (Tirikchilik)'
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('☕ Rahmat! Qahvangiz qabul qilindi va muallifga yetkazildi!');
+          // Lentaga qo'shish
+          const feed = document.getElementById('feedList');
+          const div = document.createElement('div');
+          div.className = 'feed-item';
+          div.innerHTML = `
+            <div class="feed-avatar">☕</div>
+            <div class="feed-content">
+              <div class="feed-top">
+                <span class="feed-name">${name}</span>
+                <span class="feed-cups">☕ ${Number(currentAmount).toLocaleString('uz-UZ')} so'm</span>
+              </div>
+              <div class="feed-msg">${msg || 'Qo\'llab-quvvatladi!'}</div>
+            </div>
+          `;
+          feed.insertBefore(div, feed.firstChild);
+          document.getElementById('coffeeForm').reset();
+        }
+      } catch (err) {
+        alert('To\'lovda xatolik!');
+      }
+    });
+
+    const socket = io();
+    socket.on('new_donation', (d) => {
+      console.log('Yangi donat keldi:', d);
+    });
+  </script>
+</body>
+</html>

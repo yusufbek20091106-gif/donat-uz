@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>OBS Maqsad Vidjeti (Goal Bar)</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 15px;
+      background: transparent;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .goal-container {
+      background: rgba(14, 17, 27, 0.9);
+      border: 2px solid #282f48;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+      border-radius: 16px;
+      padding: 16px 20px;
+      max-width: 480px;
+      backdrop-filter: blur(8px);
+    }
+
+    .goal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .goal-title {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .goal-percent {
+      color: #00ff88;
+      font-size: 18px;
+      font-weight: 800;
+      text-shadow: 0 0 10px rgba(0,255,136,0.4);
+    }
+
+    .bar-bg {
+      background: #090b12;
+      border: 1px solid #1f253a;
+      height: 22px;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-fill {
+      background: linear-gradient(90deg, #00bd68, #00ff88);
+      height: 100%;
+      width: 0%;
+      border-radius: 12px;
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 15px rgba(0,255,136,0.7);
+    }
+
+    .goal-footer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 13px;
+      color: #8c93ad;
+      font-weight: 600;
+    }
+
+    .current-val {
+      color: #ffd700;
+      font-weight: 700;
+    }
+  </style>
+  <script src="/socket.io/socket.io.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+</head>
+<body>
+
+  <div class="goal-container">
+    <div class="goal-header">
+      <div class="goal-title" id="goalTitle">🎮 Yangi RTX 4070 Videokartaga</div>
+      <div class="goal-percent" id="goalPercent">0%</div>
+    </div>
+    <div class="bar-bg">
+      <div class="bar-fill" id="barFill"></div>
+    </div>
+    <div class="goal-footer">
+      <div>Yig`ildi: <span class="current-val" id="currentAmount">0 so'm</span></div>
+      <div>Maqsad: <span id="targetAmount">0 so'm</span></div>
+    </div>
+  </div>
+
+  <script>
+    const socket = io();
+    const goalTitle = document.getElementById('goalTitle');
+    const goalPercent = document.getElementById('goalPercent');
+    const barFill = document.getElementById('barFill');
+    const currentAmount = document.getElementById('currentAmount');
+    const targetAmount = document.getElementById('targetAmount');
+
+    function updateGoalUI(goal) {
+      if (!goal) return;
+      goalTitle.innerText = goal.title;
+      currentAmount.innerText = Number(goal.current).toLocaleString('uz-UZ') + ' so`m';
+      targetAmount.innerText = Number(goal.target).toLocaleString('uz-UZ') + ' so`m';
+
+      let percent = Math.min(Math.round((goal.current / goal.target) * 100), 100);
+      goalPercent.innerText = percent + '%';
+      barFill.style.width = percent + '%';
+    }
+
+    socket.on('goal_updated', (goal) => {
+      updateGoalUI(goal);
+    });
+  </script>
+</body>
+</html>

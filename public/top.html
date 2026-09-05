@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>OBS Top Donaterlar Vidjeti</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 15px;
+      background: transparent;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .top-box {
+      background: rgba(14, 17, 27, 0.92);
+      border: 2px solid #282f48;
+      border-radius: 16px;
+      padding: 14px 18px;
+      max-width: 380px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+    }
+
+    .header-title {
+      color: #ffd700;
+      font-size: 15px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .donater-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-size: 14px;
+    }
+
+    .rank-1 { border-left: 4px solid #ffd700; background: rgba(255, 215, 0, 0.1); }
+    .rank-2 { border-left: 4px solid #c0c0c0; }
+    .rank-3 { border-left: 4px solid #cd7f32; }
+
+    .user-col {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .amount-col {
+      color: #00ff88;
+      font-weight: 800;
+    }
+  </style>
+  <script src="/socket.io/socket.io.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+</head>
+<body>
+
+  <div class="top-box">
+    <div class="header-title">👑 Top Donaterlar</div>
+    <div class="donater-list" id="donaterList">
+      <!-- Dinamik ro'yxat -->
+    </div>
+  </div>
+
+  <script>
+    const socket = io();
+    const donaterList = document.getElementById('donaterList');
+
+    const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+
+    function renderTop(list) {
+      if (!list || list.length === 0) {
+        donaterList.innerHTML = '<div style="color:#777; font-size:12px;">Hali donatlar yo`q</div>';
+        return;
+      }
+
+      donaterList.innerHTML = '';
+      list.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = `item rank-${i + 1}`;
+        div.innerHTML = `
+          <div class="user-col">
+            <span>${medals[i] || '⭐'}</span>
+            <span>${item.username}</span>
+          </div>
+          <div class="amount-col">${Number(item.total).toLocaleString('uz-UZ')} so'm</div>
+        `;
+        donaterList.appendChild(div);
+      });
+    }
+
+    socket.on('top_updated', (topList) => {
+      renderTop(topList);
+    });
+  </script>
+</body>
+</html>
