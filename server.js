@@ -249,28 +249,30 @@ app.post('/api/settings', (req, res) => {
 
 app.post('/api/donate', async (req, res) => {
   try {
-    const { username, amount, message, paymentMethod, youtubeUrl } = req.body;
+    const { username, amount, message, paymentMethod, creator, youtubeId } = req.body;
     const numAmount = parseInt(amount, 10) || 15000;
-    const newDonation = {
-      id: Date.now(),
-      username: username || 'Anonim obunachi',
+
+    const donation = DB.createDonation({
+      username: username || 'Aziz obunachi',
       amount: numAmount,
       message: message || "Ijodingizga ulkan omad!",
-      system: paymentMethod || 'Click / Payme',
-      youtubeUrl: youtubeUrl || '',
-      date: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
-    };
+      paymentMethod: paymentMethod || 'Click',
+      creator: creator || 'trolluz',
+      youtubeId: youtubeId || null
+    });
 
     dashboardState.balance += numAmount;
     dashboardState.count += 1;
     dashboardState.goal.current += numAmount;
-    dashboardState.donations.unshift(newDonation);
+    dashboardState.donations.unshift(donation);
+
+    console.log(`\n🎉 YANGI DONAT: ${donation.username} -> ${donation.creator} (${donation.amount} UZS) [${donation.system}]`);
 
     // Socket.io orqali jonli efir vidjetlariga uzatish
-    io.emit('new_donation', newDonation);
+    io.emit('new_donation', donation);
 
     // 🤖 Telegram Bot orqali muallifga zudlik bilan xabarnoma yuborish
-    Telegram.sendDonationAlert(newDonation)
+    Telegram.sendDonationAlert(donation)
       .then(result => {
         io.emit('telegram_status', { type: 'donation', result });
       })
@@ -278,7 +280,11 @@ app.post('/api/donate', async (req, res) => {
         console.error('Telegram dispatch error:', err.message);
       });
 
-    res.json({ success: true, donation: newDonation });
+    res.json({
+      success: true,
+      message: "Donatingiz muvaffaqiyatli qabul qilindi! Rahmat!",
+      donation
+    });
   } catch (err) {
     console.error('Error donate:', err);
     res.status(500).json({ success: false, message: "Donat qabul qilishda xatolik yuz berdi" });
@@ -402,6 +408,19 @@ app.get('/api/orders', (req, res) => {
   try {
     const orders = DB.getOrders();
     res.json({ success: true, orders });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ==========================================
+// 🎁 DONATSIYA TIZIMI (DONATIONS LIST API)
+// ==========================================
+app.get('/api/donations', (req, res) => {
+  try {
+    const creator = req.query.creator || null;
+    const donations = DB.getDonations(creator);
+    res.json({ success: true, donations });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

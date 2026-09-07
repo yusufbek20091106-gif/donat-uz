@@ -679,52 +679,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  // Amount buttons handler
-  const amountInput = document.querySelector('input#input-21') || document.querySelector('.money-field input');
-  const amountPills = document.querySelectorAll('.position-relative button');
-
-  amountPills.forEach(pill => {
-    pill.addEventListener('click', (e) => {
-      e.preventDefault();
-      const txt = pill.textContent.replace(/[^0-9]/g, '');
-      if (amountInput && txt) {
-        amountInput.value = parseInt(txt).toLocaleString('ru-RU') + ' UZS';
-      }
-    });
-  });
-
-  // Donation Submit Form
-  const form = document.querySelector('form');
-  if (form) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const nameInput = document.querySelector('input#input-16');
-      const msgInput = document.querySelector('textarea');
-      const val = amountInput ? amountInput.value.replace(/[^0-9]/g, '') : '25000';
-      const name = nameInput ? nameInput.value : 'Aziz obunachi';
-      const msg = msgInput ? msgInput.value : 'Ijodingizga baraka!';
-
-      try {
-        const res = await fetch('/api/donate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: name,
-            amount: val || 25000,
-            message: msg,
-            paymentMethod: 'Click / Payme'
-          })
-        });
-        const data = await res.json();
-        alert('🎉 Rahmat! ' + (val || 25000) + ' UZS donat yuborildi! Strimda xabar yangraydi!');
-      } catch(err) {
-        alert('🎉 Donat muvaffaqiyatli qabul qilindi!');
-      }
-    });
-  }
-});
-</script>
+<script src="/creator_donate.js"></script>
   <script src="/auth_state.js"></script>
 </body></html>
