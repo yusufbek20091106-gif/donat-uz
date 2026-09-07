@@ -2,9 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const DATA_DIR = path.join(__dirname, '..', '..', '..', 'scratch', 'donat-uz', 'data');
+const DATA_DIR = path.resolve(__dirname, 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const OTPS_FILE = path.join(DATA_DIR, 'otps.json');
+const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 
 // Ensure data files exist
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -26,6 +27,9 @@ if (!fs.existsSync(USERS_FILE)) {
 }
 if (!fs.existsSync(OTPS_FILE)) {
   fs.writeFileSync(OTPS_FILE, JSON.stringify({}, null, 2), 'utf8');
+}
+if (!fs.existsSync(ORDERS_FILE)) {
+  fs.writeFileSync(ORDERS_FILE, JSON.stringify([], null, 2), 'utf8');
 }
 
 // Active sessions memory map: token -> { userId, expiresAt }
@@ -69,46 +73,59 @@ function saveOtps(otps) {
   fs.writeFileSync(OTPS_FILE, JSON.stringify(otps, null, 2), 'utf8');
 }
 
-// DB Methods
+function getOrders() {
+  try {
+    return JSON.parse(fs.readFileSync(ORDERS_FILE, 'utf8'));
+  } catch {
+    return [];
+  }
+}
+
+function saveOrders(orders) {
+  fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2), 'utf8');
+}
+
 const DB = {
   normalizePhone,
   hashPassword,
 
   findUserByPhone(phone) {
     const norm = normalizePhone(phone);
-    return getUsers().find(u => u.phone === norm);
+    return getUsers().find(u => u.phone === norm) || null;
   },
 
   findUserById(id) {
-    return getUsers().find(u => u.id === id);
+    return getUsers().find(u => u.id === id) || null;
   },
 
   findUserByUsername(username) {
-    return getUsers().find(u => u.username.toLowerCase() === username.toLowerCase());
+    if (!username) return null;
+    const clean = username.toLowerCase().trim();
+    return getUsers().find(u => (u.username || '').toLowerCase() === clean) || null;
   },
 
-  createUser({ phone, name, username, password, role = 'creator' }) {
-    const users = getUsers();
+  createUser({ phone, name, username, password, avatar, bio }) {
     const normPhone = normalizePhone(phone);
+    const users = getUsers();
 
     if (users.some(u => u.phone === normPhone)) {
       throw new Error("Ushbu telefon raqami allaqachon ro'yxatdan o'tgan");
     }
 
-    const cleanUsername = (username || name || 'user')
-      .toLowerCase()
-      .replace(/[^a-z0-9_]/g, '') || ('user_' + Date.now().toString().slice(-4));
+    if (username && users.some(u => (u.username || '').toLowerCase() === username.toLowerCase().trim())) {
+      throw new Error("Ushbu username band, iltimos boshqasini tanlang");
+    }
 
     const newUser = {
-      id: 'usr_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      id: 'usr_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
       phone: normPhone,
-      name: name || cleanUsername,
-      username: cleanUsername,
+      name: name.trim(),
+      username: username ? username.trim().toLowerCase() : null,
       passwordHash: hashPassword(password),
-      role: role,
+      role: 'creator',
       balance: 0,
-      avatar: 'https://tirikchilik.uz/assets/default_avatar-706f3630.svg',
-      bio: "DonatUZ da yangi ijodkor",
+      avatar: avatar || 'https://s3.devspace.uz/tirikchilik/IMG_1699.jpeg?x-id=GetObject',
+      bio: bio || "DonatUZ ijodkori",
       createdAt: new Date().toISOString()
     };
 
@@ -117,26 +134,41 @@ const DB = {
     return newUser;
   },
 
+  updateUser(id, updates) {
+    const users = getUsers();
+    const idx = users.findIndex(u => u.id === id);
+    if (idx === -1) throw new Error("Foydalanuvchi topilmadi");
+
+    if (updates.password) {
+      updates.passwordHash = hashPassword(updates.password);
+      delete updates.password;
+    }
+
+    users[idx] = { ...users[idx], ...updates, updatedAt: new Date().toISOString() };
+    saveUsers(users);
+    return users[idx];
+  },
+
   createOtp(phone) {
     const normPhone = normalizePhone(phone);
-    const code = crypto.randomInt(100000, 999999).toString();
-    const expiresAt = Date.now() + 3 * 60 * 1000; // 3 minutes
+    const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digits
+    const expiresAt = Date.now() + 5 * 60 * 1000; // 5 mins
 
     const otps = getOtps();
     otps[normPhone] = {
       code,
       expiresAt,
-      attempts: 0
+      attempts: 0,
+      createdAt: Date.now()
     };
     saveOtps(otps);
 
-    // Terminal log simulating SMS Gateway dispatch
-    console.log(`\n======================================================`);
-    console.log(`📨 [SMS GATEWAY] XABAR YUBORILDI:`);
-    console.log(`📱 Raqam: ${normPhone}`);
-    console.log(`🔑 Tasdiqlash kodi: [ ${code} ]`);
-    console.log(`⏱ Amal qilish vaqti: 3 daqiqa`);
-    console.log(`======================================================\n`);
+    console.log(`\n================================`);
+    console.log(`📲 [SMS GATEWAY SIMULATOR]`);
+    console.log(`➡️  Telefon: ${normPhone}`);
+    console.log(`🔑  Tasdiqlash kodi: ${code}`);
+    console.log(`⏳  Yaroqlilik muddati: 5 daqiqa`);
+    console.log(`================================\n`);
 
     return { code, expiresAt };
   },
@@ -144,28 +176,29 @@ const DB = {
   verifyOtp(phone, code) {
     const normPhone = normalizePhone(phone);
     const otps = getOtps();
-    const record = otps[normPhone];
+    const entry = otps[normPhone];
 
-    if (!record) {
-      return { valid: false, message: "Kodni avval so'rang (SMS yuborilmagan)" };
+    if (!entry) {
+      return { valid: false, message: "Tasdiqlash kodi so'ralmagan yoki muddati tugagan" };
     }
 
-    if (Date.now() > record.expiresAt) {
+    if (Date.now() > entry.expiresAt) {
       delete otps[normPhone];
       saveOtps(otps);
-      return { valid: false, message: "SMS kod muddati tugagan. Qaytadan so'rang." };
+      return { valid: false, message: "Tasdiqlash kodining muddati tugadi. Yangi kod so'rang." };
     }
 
-    if (record.attempts >= 5) {
+    entry.attempts = (entry.attempts || 0) + 1;
+
+    if (entry.attempts > 5) {
       delete otps[normPhone];
       saveOtps(otps);
-      return { valid: false, message: "Urinishlar soni tugadi. Qaytadan kod so'rang." };
+      return { valid: false, message: "Urinishlar soni ko'payib ketdi. Yangi kod so'rang." };
     }
 
-    if (record.code !== code.trim()) {
-      record.attempts += 1;
+    if (entry.code !== code.trim()) {
       saveOtps(otps);
-      return { valid: false, message: `Noto'g'ri kod. ${5 - record.attempts} ta urinish qoldi.` };
+      return { valid: false, message: "Kiritilgan SMS kod noto'g'ri" };
     }
 
     // Success: clear OTP
@@ -197,6 +230,34 @@ const DB = {
 
   destroySession(token) {
     if (token) sessions.delete(token);
+  },
+
+  // ==========================================
+  // 🛒 MERCH ORDERS
+  // ==========================================
+  getOrders() {
+    return getOrders();
+  },
+
+  createOrder({ fullName, phone, address, paymentMethod, items, total, note }) {
+    const orders = getOrders();
+    const newOrder = {
+      id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
+      fullName: (fullName || 'Mijoz').trim(),
+      phone: normalizePhone(phone) || phone,
+      address: (address || "O'zbekiston").trim(),
+      paymentMethod: paymentMethod || 'Naqd',
+      items: Array.isArray(items) ? items : [],
+      total: parseInt(total, 10) || 0,
+      note: (note || '').trim(),
+      status: 'new', // new, processing, delivered, cancelled
+      createdAt: new Date().toISOString(),
+      date: new Date().toLocaleString('uz-UZ', { dateStyle: 'short', timeStyle: 'short' })
+    };
+
+    orders.unshift(newOrder);
+    saveOrders(orders);
+    return newOrder;
   }
 };
 

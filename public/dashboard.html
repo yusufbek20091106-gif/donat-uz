@@ -1,20 +1,23 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uz" data-theme="neon">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Strimer Boshqaruv Paneli Pro</title>
+  <title>DonatUZ — Boshqaruv Paneli</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="/socket.io/socket.io.js"></script>
+
   <style>
     :root {
-      --bg: #090b12;
-      --panel-bg: #131726;
-      --border: #232a45;
-      --text: #ffffff;
-      --text-muted: #8790ad;
+      --bg: #090d16;
+      --panel-bg: rgba(18, 26, 43, 0.85);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
       --primary: #00ff88;
-      --primary-glow: rgba(0, 255, 136, 0.35);
-      --gold: #ffd700;
-      --input-bg: #0b0d16;
+      --primary-glow: rgba(0, 255, 136, 0.3);
+      --gold: #ffc000;
+      --input-bg: rgba(10, 15, 29, 0.7);
     }
 
     [data-theme="minimal"] {
@@ -30,22 +33,22 @@
     }
 
     [data-theme="gold"] {
-      --bg: #0d0c0a;
-      --panel-bg: #181611;
-      --border: #3b3320;
-      --text: #fff6e0;
-      --text-muted: #a6987c;
-      --primary: #f59e0b;
-      --primary-glow: rgba(245, 158, 11, 0.35);
-      --gold: #f59e0b;
-      --input-bg: #110f0b;
+      --bg: #120e06;
+      --panel-bg: rgba(33, 25, 13, 0.9);
+      --border: rgba(255, 192, 0, 0.2);
+      --text: #fef3c7;
+      --text-muted: #d97706;
+      --primary: #ffc000;
+      --primary-glow: rgba(255, 192, 0, 0.3);
+      --gold: #fbbf24;
+      --input-bg: rgba(24, 18, 9, 0.8);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 16px; min-height: 100vh; transition: 0.3s; }
-    .container { max-width: 1100px; margin: 0 auto; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; transition: background 0.3s; }
+    .container { max-width: 1200px; margin: 0 auto; }
 
-    /* Header */
+    /* Navigatsiya */
     .nav-bar {
       display: flex;
       flex-wrap: wrap;
@@ -75,14 +78,15 @@
     .t-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
     [data-theme="minimal"] .t-btn.active { color: #fff; }
 
-    /* Statistika: Mobilda 1 ustun, planshetda 2, kompyuterda 3 */
+    /* Statistika: Mobilda 1 ustun, planshetda 2, kompyuterda 4 */
     .stats-row {
       display: grid;
       grid-template-columns: 1fr;
       gap: 12px;
       margin-bottom: 20px;
     }
-    @media (min-width: 600px) { .stats-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 600px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 950px) { .stats-row { grid-template-columns: repeat(4, 1fr); } }
 
     .stat-card {
       background: var(--panel-bg);
@@ -91,18 +95,19 @@
       padding: 18px;
     }
     .stat-card h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-    .stat-card .val { font-size: 26px; font-weight: 800; }
+    .stat-card .val { font-size: 24px; font-weight: 800; }
     .stat-card .val.primary { color: var(--primary); }
     .stat-card .val.gold { color: var(--gold); }
+    .stat-card .val.cyan { color: #38bdf8; }
 
-    /* 2 ta asosiy blok: Mobilda tagma-tag, Desktopda yonma-yon */
+    /* Asosiy bloklar gridi */
     .main-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 16px;
       margin-bottom: 20px;
     }
-    @media (min-width: 850px) { .main-grid { grid-template-columns: 1.2fr 0.8fr; } }
+    @media (min-width: 900px) { .main-grid { grid-template-columns: 1fr 1fr; } }
 
     .box {
       background: var(--panel-bg);
@@ -110,7 +115,7 @@
       border-radius: 18px;
       padding: 20px;
     }
-    .box h3 { font-size: 17px; margin-bottom: 14px; color: var(--text); }
+    .box h3 { font-size: 17px; margin-bottom: 14px; color: var(--text); display: flex; align-items: center; justify-content: space-between; }
 
     .widget-item { margin-bottom: 12px; }
     .widget-item label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
@@ -154,6 +159,8 @@
       transition: 0.2s;
     }
     .btn-test.blue { background: #0284c7; color: #fff; }
+    .btn-test.tg { background: #229ED9; color: #fff; }
+    .btn-test:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
@@ -166,7 +173,9 @@
       color: var(--text);
       font-size: 14px;
       outline: none;
+      transition: border 0.2s;
     }
+    .ctrl:focus { border-color: var(--primary); }
     .btn-save {
       width: 100%;
       background: var(--primary);
@@ -178,8 +187,9 @@
       font-weight: 800;
       cursor: pointer;
       margin-top: 4px;
+      transition: 0.2s;
     }
-    [data-theme="minimal"] .btn-save { color: #fff; }
+    .btn-save:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
     /* Jadval */
     .table-box {
@@ -188,14 +198,46 @@
       border-radius: 18px;
       padding: 20px;
       overflow-x: auto;
+      margin-bottom: 20px;
     }
-    table { width: 100%; border-collapse: collapse; min-width: 500px; }
-    th { text-align: left; padding: 8px 10px; font-size: 12px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
-    td { padding: 10px; font-size: 13px; border-bottom: 1px solid var(--border); }
-    .badge { background: var(--input-bg); color: var(--primary); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    th { padding: 12px 14px; color: var(--text-muted); border-bottom: 1px solid var(--border); font-weight: 700; }
+    td { padding: 14px; border-bottom: 1px solid var(--border); }
+    .badge {
+      background: rgba(255,255,255,0.06);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-tg { background: rgba(34, 158, 217, 0.18); color: #38bdf8; }
+    .badge-success { background: rgba(16, 185, 129, 0.18); color: #10b981; }
+    .badge-order { background: rgba(245, 158, 11, 0.18); color: #f59e0b; }
+
+    /* Telegram Status Indicator */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .status-pill.connected { background: rgba(0,255,136,0.15); color: var(--primary); }
+    .status-pill.idle { background: rgba(148,163,184,0.15); color: var(--text-muted); }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .checkbox-row input { cursor: pointer; accent-color: var(--primary); width: 16px; height: 16px; }
   </style>
-  <script src="/socket.io/socket.io.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
 </head>
 <body>
 
@@ -204,11 +246,19 @@
     <div class="nav-bar">
       <div class="brand">🔥 DonatUZ <span style="font-size:12px; color:var(--text-muted); font-weight:600;">Control</span></div>
       
-      <!-- Theme Switcher -->
-      <div class="theme-group">
-        <button class="t-btn active" onclick="applyTheme('neon')">⚡ Neon</button>
-        <button class="t-btn" onclick="applyTheme('minimal')">⚪ Clean</button>
-        <button class="t-btn" onclick="applyTheme('gold')">👑 Gold</button>
+      <!-- Theme Switcher & Links -->
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <a href="/market" target="_blank" class="t-btn" style="text-decoration:none; display:flex; align-items:center; gap:6px;">
+          <span>🛒 Market</span>
+        </a>
+        <a href="/" target="_blank" class="t-btn" style="text-decoration:none; display:flex; align-items:center; gap:6px;">
+          <span>🌐 Asosiy</span>
+        </a>
+        <div class="theme-group">
+          <button class="t-btn active" onclick="applyTheme('neon')">⚡ Neon</button>
+          <button class="t-btn" onclick="applyTheme('minimal')">⚪ Clean</button>
+          <button class="t-btn" onclick="applyTheme('gold')">👑 Gold</button>
+        </div>
       </div>
     </div>
 
@@ -248,9 +298,13 @@
         <h4>Maqsad Ko'rsatkichi</h4>
         <div class="val gold" id="valGoal">0%</div>
       </div>
+      <div class="stat-card">
+        <h4>Merch Buyurtmalar</h4>
+        <div class="val cyan" id="valOrders">0 ta</div>
+      </div>
     </div>
 
-    <!-- Asosiy panellar -->
+    <!-- 2 ta asosiy panel (OBS havolalari + Efir sozlamalari) -->
     <div class="main-grid">
       <!-- 1. OBS havolalari va test -->
       <div class="box">
@@ -310,9 +364,95 @@
       </div>
     </div>
 
-    <!-- Donatlar tarixi -->
+    <!-- 3. 🤖 TELEGRAM BOT INTEGRATSIYASI -->
+    <div class="box" style="margin-bottom: 20px;">
+      <h3>
+        <span>🤖 Telegram Bot Integratsiyasi</span>
+        <span id="tgStatusBadge" class="status-pill idle">○ Bog'lanmagan</span>
+      </h3>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
+        O'z Telegram hisobingiz yoki guruh/kanalingizni bog'lang. DonatUZ orqali har safar sizga donat tushganda yoki Merch do'koningizdan buyurtma berilganda Telegram bot darhol sizga xabar beradi!
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr; gap: 14px;" class="tg-grid">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+          <div class="form-group">
+            <label>Telegram Chat ID (yoki @username)</label>
+            <input type="text" id="tgChatId" class="ctrl" placeholder="Masalan: 123456789 yoki @muallif_uz" />
+            <span style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;">
+              Chat ID ni bilish uchun Telegramda <b>@userinfobot</b> ga /start yozing.
+            </span>
+          </div>
+          <div class="form-group">
+            <label>Telegram Bot Token (ixtiyoriy, shaxsiy botingiz bo'lsa)</label>
+            <input type="text" id="tgBotToken" class="ctrl" placeholder="1234567890:AAHxxxxxx... (Bo'sh qolsa tizim boti ishlaydi)" />
+            <span style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;">
+              <b>@BotFather</b> orqali olingan token. Bo'sh qoldirsangiz DonatUZ standart boti yuboradi.
+            </span>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; padding: 6px 0;">
+          <label class="checkbox-row">
+            <input type="checkbox" id="tgNotifyDonations" checked />
+            <span>💰 Har bir yangi donat tushganda darhol xabar berish</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="tgNotifyOrders" checked />
+            <span>🛍 Har bir yangi Merch buyurtmasi tushganda xabar berish</span>
+          </label>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px;">
+          <button class="btn-save" style="flex: 2; min-width: 180px; margin-top:0;" onclick="saveTelegramConfig()">
+            💾 Telegram Sozlamalarini Saqlash
+          </button>
+          <button class="btn-test tg" style="flex: 1; min-width: 160px;" onclick="testTelegramAlert()">
+            ✈️ Test Xabar Yuborish
+          </button>
+        </div>
+      </div>
+
+      <!-- Telegram Xabarlar Tarixi / Jurnali -->
+      <div id="tgLogContainer" style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);">
+        <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">
+          📡 So'nggi Telegram Xabarnomalari (Jonli rejim)
+        </div>
+        <div id="tgLogList" style="display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto;">
+          <div style="font-size: 12px; color: var(--text-muted); font-style: italic;">Hozircha xabarnomalar mavjud emas.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 🛒 MERCH DO'KONI BUYURTMALARI -->
     <div class="table-box">
-      <h3 style="margin-bottom:12px; font-size:16px;">📜 Tushumlar Tarixi</h3>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="font-size:16px;">🛒 Merch Do'koni Buyurtmalari (Market)</h3>
+        <button class="t-btn" onclick="loadOrders()" style="font-size: 11px;">🔄 Yangilash</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Buyurtma ID</th>
+            <th>Vaqt</th>
+            <th>Mijoz</th>
+            <th>Telefon</th>
+            <th>Yetkazib berish manzili</th>
+            <th>Mahsulotlar</th>
+            <th>Summa</th>
+            <th>To'lov turi</th>
+            <th>Holati</th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody">
+          <tr><td colspan="9" style="text-align:center; color:var(--text-muted);">Buyurtmalar yuklanmoqda...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 5. DONATLAR TARIXI -->
+    <div class="table-box">
+      <h3 style="margin-bottom:12px; font-size:16px;">📜 Tushumlar Tarixi (Donatlar)</h3>
       <table>
         <thead>
           <tr>
@@ -347,40 +487,46 @@
       alert('Nusxa olindi! OBS dasturiga Browser Source qilib qo`yishingiz mumkin.');
     }
 
+    // 1. Ma'lumotlarni yangilash
     async function refreshData() {
-      const res = await fetch('/api/stats');
-      const data = await res.json();
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
 
-      document.getElementById('valBal').innerText = Number(data.balance).toLocaleString('uz-UZ') + ' so`m';
-      document.getElementById('valCnt').innerText = data.count + ' ta';
+        document.getElementById('valBal').innerText = Number(data.balance).toLocaleString('uz-UZ') + ' so`m';
+        document.getElementById('valCnt').innerText = data.count + ' ta';
 
-      if (data.goal) {
-        document.getElementById('goalTitle').value = data.goal.title;
-        document.getElementById('goalTarget').value = data.goal.target;
-        const p = Math.min(Math.round((data.goal.current / data.goal.target) * 100), 100);
-        document.getElementById('valGoal').innerText = p + '%';
+        if (data.goal) {
+          document.getElementById('goalTitle').value = data.goal.title;
+          document.getElementById('goalTarget').value = data.goal.target;
+          const p = Math.min(Math.round((data.goal.current / data.goal.target) * 100), 100);
+          document.getElementById('valGoal').innerText = p + '%';
+        }
+
+        if (data.settings && data.settings.alertSound) {
+          document.getElementById('alertSound').value = data.settings.alertSound;
+        }
+
+        const tbody = document.getElementById('historyBody');
+        tbody.innerHTML = '';
+        data.donations.forEach(d => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="color:var(--text-muted);">${d.date}</td>
+            <td style="font-weight:700; color:var(--primary);">${d.username}</td>
+            <td style="font-weight:800; color:var(--gold);">${Number(d.amount).toLocaleString('uz-UZ')} so'm</td>
+            <td>${d.message || '-'}</td>
+            <td>${d.youtubeUrl ? '🎬 Video' : '💬 Matn'}</td>
+            <td><span class="badge">${d.system}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('refreshData error:', err);
       }
-
-      if (data.settings && data.settings.alertSound) {
-        document.getElementById('alertSound').value = data.settings.alertSound;
-      }
-
-      const tbody = document.getElementById('historyBody');
-      tbody.innerHTML = '';
-      data.donations.forEach(d => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td style="color:var(--text-muted);">${d.date}</td>
-          <td style="font-weight:700; color:var(--primary);">${d.username}</td>
-          <td style="font-weight:800; color:var(--gold);">${Number(d.amount).toLocaleString('uz-UZ')} so'm</td>
-          <td>${d.message || '-'}</td>
-          <td>${d.youtubeId ? '🎬 Video' : '💬 Matn'}</td>
-          <td><span class="badge">${d.system}</span></td>
-        `;
-        tbody.appendChild(tr);
-      });
     }
 
+    // 2. Efir konfiguratsiyasini saqlash
     async function saveConfig() {
       const title = document.getElementById('goalTitle').value;
       const target = document.getElementById('goalTarget').value;
@@ -398,45 +544,17 @@
         body: JSON.stringify({ alertSound: sound })
       });
 
-      alert('Sozlamalar yangilandi!');
-      function checkAuth() {
-      const stored = localStorage.getItem('donatuz_user');
-      if (stored) {
-        try {
-          const u = JSON.parse(stored);
-          if (u.name) document.getElementById('userName').innerText = u.name;
-          if (u.phone) document.getElementById('userPhone').innerText = u.phone;
-          if (u.avatar) document.getElementById('userAvatar').src = u.avatar;
-          if (u.username) document.getElementById('myPageLink').href = '/' + u.username;
-        } catch (e) {}
-      }
+      alert('Sozlamalar saqlandi!');
+      refreshData();
     }
 
-    async function logoutUser() {
-      if (!confirm('Haqiqatan ham hisobdan chiqmoqchimisiz?')) return;
-      const token = localStorage.getItem('donatuz_token');
-      try {
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + token }
-        });
-      } catch (e) {}
-      localStorage.removeItem('donatuz_user');
-      localStorage.removeItem('donatuz_token');
-      window.location.href = '/auth';
-    }
-
-    checkAuth();
-
-    refreshData();
-    }
-
+    // 3. Test Donat yuborish
     async function sendTestAlert(amt, msg, yt) {
       await fetch('/api/donate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: 'Tester',
+          username: 'Yusufbek (Test)',
           amount: amt,
           message: msg,
           youtubeUrl: yt || '',
@@ -445,10 +563,146 @@
       });
     }
 
-    const socket = io();
-    socket.on('new_donation', () => refreshData());
-    socket.on('goal_updated', () => refreshData());
+    // 4. Telegram Bot Sozlamalarini Yuklash & Saqlash
+    async function loadTelegramConfig() {
+      try {
+        const res = await fetch('/api/telegram/config');
+        const data = await res.json();
+        if (data.success && data.config) {
+          const c = data.config;
+          document.getElementById('tgChatId').value = c.chatId || '';
+          document.getElementById('tgBotToken').value = c.botToken || '';
+          document.getElementById('tgNotifyDonations').checked = c.notifyDonations !== false;
+          document.getElementById('tgNotifyOrders').checked = c.notifyOrders !== false;
 
+          const badge = document.getElementById('tgStatusBadge');
+          if (c.chatId) {
+            badge.className = 'status-pill connected';
+            badge.innerHTML = `● Bog'langan (${c.chatId})`;
+          } else {
+            badge.className = 'status-pill idle';
+            badge.innerHTML = `○ Bog'lanmagan`;
+          }
+
+          renderTgLogs(c.history || []);
+        }
+      } catch (e) {
+        console.error('loadTelegramConfig error:', e);
+      }
+    }
+
+    function renderTgLogs(logs) {
+      const container = document.getElementById('tgLogList');
+      if (!logs || logs.length === 0) {
+        container.innerHTML = '<div style="font-size: 12px; color: var(--text-muted); font-style: italic;">Hozircha xabarnomalar yo\'q.</div>';
+        return;
+      }
+      container.innerHTML = logs.map(l => {
+        const isOk = l.status === 'delivered' || l.status === 'simulated';
+        const color = isOk ? 'var(--primary)' : '#f87171';
+        return `
+          <div style="background: var(--input-bg); border-radius: 8px; padding: 8px 12px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+            <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%;">
+              <span style="color:var(--text-muted); font-family: monospace;">[${l.time}]</span>
+              <span style="font-weight:700; margin-left: 6px;">${l.text.slice(0, 75)}...</span>
+            </div>
+            <span style="color: ${color}; font-size: 11px; font-weight: 700;">
+              ${l.status === 'delivered' ? '✓ Yuborildi' : (l.status === 'simulated' ? '⚡ Simulyatsiya' : '❌ Xato')}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function saveTelegramConfig() {
+      const chatId = document.getElementById('tgChatId').value.trim();
+      const botToken = document.getElementById('tgBotToken').value.trim();
+      const notifyDonations = document.getElementById('tgNotifyDonations').checked;
+      const notifyOrders = document.getElementById('tgNotifyOrders').checked;
+
+      try {
+        const res = await fetch('/api/telegram/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chatId, botToken, notifyDonations, notifyOrders })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Telegram bot sozlamalari muvaffaqiyatli saqlandi!');
+          loadTelegramConfig();
+        } else {
+          alert('Xatolik: ' + (data.message || 'Saqlanmadi'));
+        }
+      } catch (err) {
+        alert('Server bilan bog\'lanishda xatolik');
+      }
+    }
+
+    async function testTelegramAlert() {
+      const chatId = document.getElementById('tgChatId').value.trim();
+      const botToken = document.getElementById('tgBotToken').value.trim();
+
+      if (!chatId) {
+        alert('Iltimos, avval Telegram Chat ID ni kiriting!');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/telegram/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chatId, botToken })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Xabarnoma yuborildi! Telegram hisobingizni tekshiring.');
+          loadTelegramConfig();
+        } else {
+          alert('Xatolik: ' + (data.result?.error || 'Xabar bormadi'));
+        }
+      } catch (e) {
+        alert('Test yuborishda xatolik yuz berdi');
+      }
+    }
+
+    // 5. Buyurtmalarni yuklash
+    async function loadOrders() {
+      try {
+        const res = await fetch('/api/orders');
+        const data = await res.json();
+        const tbody = document.getElementById('ordersBody');
+        
+        if (!data.success || !data.orders || data.orders.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted);">Hozircha buyurtmalar mavjud emas.</td></tr>';
+          document.getElementById('valOrders').innerText = '0 ta';
+          return;
+        }
+
+        document.getElementById('valOrders').innerText = data.orders.length + ' ta';
+        tbody.innerHTML = '';
+
+        data.orders.forEach(o => {
+          const tr = document.createElement('tr');
+          const itemsSummary = (o.items || []).map(i => `${i.title} (${i.quantity}x)`).join(', ');
+          tr.innerHTML = `
+            <td style="font-family: monospace; font-weight: 700; color: var(--gold);">${o.id}</td>
+            <td style="color:var(--text-muted);">${o.date || '-'}</td>
+            <td style="font-weight:700; color:var(--text);">${o.fullName}</td>
+            <td><a href="tel:${o.phone}" style="color:var(--primary); text-decoration:none;">${o.phone}</a></td>
+            <td style="max-width: 180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${o.address}">${o.address}</td>
+            <td style="max-width: 220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${itemsSummary}">${itemsSummary}</td>
+            <td style="font-weight:800; color:var(--gold);">${Number(o.total).toLocaleString('uz-UZ')} so'm</td>
+            <td><span class="badge">${o.paymentMethod || 'Naqd'}</span></td>
+            <td><span class="badge badge-order">Yangi buyurtma</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('loadOrders error:', err);
+      }
+    }
+
+    // 6. Foydalanuvchi profilini tekshirish
     function checkAuth() {
       const stored = localStorage.getItem('donatuz_user');
       if (stored) {
@@ -476,9 +730,24 @@
       window.location.href = '/auth';
     }
 
-    checkAuth();
+    // Socket.io Real-time tinglovchilari
+    const socket = io();
+    socket.on('new_donation', () => {
+      refreshData();
+      loadTelegramConfig();
+    });
+    socket.on('goal_updated', () => refreshData());
+    socket.on('new_order', () => {
+      loadOrders();
+      loadTelegramConfig();
+    });
+    socket.on('telegram_status', () => loadTelegramConfig());
 
+    // Dastlabki ishga tushirish
+    checkAuth();
     refreshData();
+    loadTelegramConfig();
+    loadOrders();
   </script>
 </body>
 </html>

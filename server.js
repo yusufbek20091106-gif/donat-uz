@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const path = require('path');
 const cors = require('cors');
 const DB = require('./db.js');
+const Telegram = require('./telegram.js');
 
 const app = express();
 const server = http.createServer(app);
@@ -246,26 +247,164 @@ app.post('/api/settings', (req, res) => {
   res.json({ success: true, settings: dashboardState.settings });
 });
 
-app.post('/api/donate', (req, res) => {
-  const { username, amount, message, paymentMethod, youtubeUrl } = req.body;
-  const numAmount = parseInt(amount, 10) || 15000;
-  const newDonation = {
-    id: Date.now(),
-    username: username || 'Anonim obunachi',
-    amount: numAmount,
-    message: message || "Ijodingizga ulkan omad!",
-    system: paymentMethod || 'Click / Payme',
-    youtubeUrl: youtubeUrl || '',
-    date: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
-  };
+app.post('/api/donate', async (req, res) => {
+  try {
+    const { username, amount, message, paymentMethod, youtubeUrl } = req.body;
+    const numAmount = parseInt(amount, 10) || 15000;
+    const newDonation = {
+      id: Date.now(),
+      username: username || 'Anonim obunachi',
+      amount: numAmount,
+      message: message || "Ijodingizga ulkan omad!",
+      system: paymentMethod || 'Click / Payme',
+      youtubeUrl: youtubeUrl || '',
+      date: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+    };
 
-  dashboardState.balance += numAmount;
-  dashboardState.count += 1;
-  dashboardState.goal.current += numAmount;
-  dashboardState.donations.unshift(newDonation);
+    dashboardState.balance += numAmount;
+    dashboardState.count += 1;
+    dashboardState.goal.current += numAmount;
+    dashboardState.donations.unshift(newDonation);
 
-  io.emit('new_donation', newDonation);
-  res.json({ success: true, donation: newDonation });
+    // Socket.io orqali jonli efir vidjetlariga uzatish
+    io.emit('new_donation', newDonation);
+
+    // 🤖 Telegram Bot orqali muallifga zudlik bilan xabarnoma yuborish
+    Telegram.sendDonationAlert(newDonation)
+      .then(result => {
+        io.emit('telegram_status', { type: 'donation', result });
+      })
+      .catch(err => {
+        console.error('Telegram dispatch error:', err.message);
+      });
+
+    res.json({ success: true, donation: newDonation });
+  } catch (err) {
+    console.error('Error donate:', err);
+    res.status(500).json({ success: false, message: "Donat qabul qilishda xatolik yuz berdi" });
+  }
+});
+
+// ==========================================
+// 🤖 TELEGRAM BOT INTEGRATSIYA API
+// ==========================================
+app.get('/api/telegram/config', (req, res) => {
+  try {
+    const config = Telegram.loadConfig();
+    res.json({
+      success: true,
+      config: {
+        enabled: config.enabled !== false,
+        botToken: config.botToken || '',
+        chatId: config.chatId || '',
+        notifyDonations: config.notifyDonations !== false,
+        notifyOrders: config.notifyOrders !== false,
+        history: (config.history || []).slice(0, 10)
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/telegram/config', (req, res) => {
+  try {
+    const { botToken, chatId, enabled, notifyDonations, notifyOrders } = req.body;
+    const updated = Telegram.saveConfig({
+      botToken: (botToken || '').trim(),
+      chatId: (chatId || '').trim(),
+      enabled: enabled !== false,
+      notifyDonations: notifyDonations !== false,
+      notifyOrders: notifyOrders !== false
+    });
+
+    res.json({
+      success: true,
+      message: "Telegram bot sozlamalari muvaffaqiyatli saqlandi!",
+      config: updated
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/telegram/test', async (req, res) => {
+  try {
+    const { botToken, chatId } = req.body;
+    const testMsg = [
+      `🚀 <b>DonatUZ x Telegram Bot integratsiyasi sinovi!</b>`,
+      ``,
+      `✅ Bot muvaffaqiyatli bog'landi!`,
+      `⏰ <b>Vaqt:</b> ${new Date().toLocaleTimeString('uz-UZ')}`,
+      ``,
+      `Endi sizga har bir yangi donat va market buyurtmasi haqida shu yerga tezkor xabarnoma kelib turadi!`
+    ].join('\n');
+
+    const result = await Telegram.sendTelegramMessage(testMsg, { botToken, chatId });
+    res.json({ success: result.success, result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ==========================================
+// 🛒 MERCH MARKET BUYURTMA API
+// ==========================================
+app.post('/api/orders', async (req, res) => {
+  try {
+    const { fullName, phone, address, paymentMethod, items, total, note } = req.body;
+
+    if (!fullName || !phone || !address) {
+      return res.status(400).json({
+        success: false,
+        message: "Iltimos, ism, telefon raqam va yetkazib berish manzilini to'liq kiriting"
+      });
+    }
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Savatchangiz bo'sh. Mahsulot tanlang."
+      });
+    }
+
+    const order = DB.createOrder({
+      fullName,
+      phone,
+      address,
+      paymentMethod,
+      items,
+      total,
+      note
+    });
+
+    // Telegram orqali xabar yuborish
+    Telegram.sendOrderAlert(order)
+      .then(res => console.log('Telegram order notification dispatched'))
+      .catch(e => console.error('Telegram order error:', e.message));
+
+    // Dashboardga jonli signal berish
+    io.emit('new_order', order);
+
+    res.json({
+      success: true,
+      message: "Buyurtmangiz qabul qilindi! Tez orada siz bilan bog'lanamiz.",
+      orderId: order.id,
+      order
+    });
+  } catch (err) {
+    console.error('Error orders:', err);
+    res.status(500).json({ success: false, message: "Buyurtma berishda server xatosi" });
+  }
+});
+
+app.get('/api/orders', (req, res) => {
+  try {
+    const orders = DB.getOrders();
+    res.json({ success: true, orders });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 // ==========================================

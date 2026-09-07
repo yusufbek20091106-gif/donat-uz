@@ -14,6 +14,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     }
+
+    // Sync cart badge across all pages
+    const cartStr = localStorage.getItem('donatuz_cart_items');
+    if (cartStr) {
+      const items = JSON.parse(cartStr);
+      const count = (items || []).reduce((s, i) => s + (i.quantity || 1), 0);
+      const cartBtn = document.querySelector('.cart-icon-btn');
+      if (cartBtn && count > 0) {
+        let b = cartBtn.querySelector('.cart-badge');
+        if (!b) {
+          b = document.createElement('span');
+          b.className = 'cart-badge';
+          b.style.cssText = 'position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;font-size:11px;font-weight:800;min-width:20px;height:20px;line-height:20px;text-align:center;border-radius:999px;padding:0 4px;border:2px solid #fff;box-shadow:0 2px 6px rgba(239,68,68,0.4);';
+          cartBtn.style.position = 'relative';
+          cartBtn.appendChild(b);
+        }
+        b.innerText = count;
+      }
+    }
   } catch (e) {
     console.error('Auth state sync error:', e);
   }
