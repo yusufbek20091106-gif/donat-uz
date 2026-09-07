@@ -427,10 +427,86 @@ app.get('/api/donations', (req, res) => {
 });
 
 // ==========================================
+// 📰 YANGILIKLAR LENTASI API (POSTS & FEED)
+// ==========================================
+app.get('/api/posts', (req, res) => {
+  try {
+    const tag = req.query.tag || null;
+    const posts = DB.getPosts(tag);
+    res.json({ success: true, posts });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/posts', (req, res) => {
+  try {
+    const { author, authorName, authorHandle, authorAvatar, title, content, image, tag, badge, badgeColor } = req.body;
+    if (!content || !content.trim()) {
+      return res.status(400).json({ success: false, message: "Post matni bo'sh bo'lishi mumkin emas" });
+    }
+
+    const newPost = DB.createPost({
+      author,
+      authorName,
+      authorHandle,
+      authorAvatar,
+      title,
+      content,
+      image,
+      tag,
+      badge,
+      badgeColor
+    });
+
+    io.emit('new_post', newPost);
+    res.json({ success: true, message: "Yangi post e'lon qilindi!", post: newPost });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/posts/:id/like', (req, res) => {
+  try {
+    const post = DB.likePost(req.params.id);
+    if (!post) {
+      return res.status(404).json({ success: false, message: "Post topilmadi" });
+    }
+    io.emit('post_liked', { id: post.id, likes: post.likes });
+    res.json({ success: true, likes: post.likes });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/posts/:id/comment', (req, res) => {
+  try {
+    const { name, text } = req.body;
+    if (!text || !text.trim()) {
+      return res.status(400).json({ success: false, message: "Izoh matnini kiriting" });
+    }
+    const comment = DB.addComment(req.params.id, { name, text });
+    if (!comment) {
+      return res.status(404).json({ success: false, message: "Post topilmadi" });
+    }
+    io.emit('new_comment', { postId: req.params.id, comment });
+    res.json({ success: true, comment });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ==========================================
 // 🌐 ASOSIY SAHIFALAR VA MARSHRUTLAR
 // ==========================================
 app.get('/', (req, res) => res.sendFile('index.html', { root: PUBLIC_DIR }));
 app.get('/index.html', (req, res) => res.sendFile('index.html', { root: PUBLIC_DIR }));
+app.get('/lenta', (req, res) => res.sendFile('feed.html', { root: PUBLIC_DIR }));
+app.get('/lenta.html', (req, res) => res.sendFile('feed.html', { root: PUBLIC_DIR }));
+app.get('/feed', (req, res) => res.sendFile('feed.html', { root: PUBLIC_DIR }));
+app.get('/feed.html', (req, res) => res.sendFile('feed.html', { root: PUBLIC_DIR }));
+app.get('/news', (req, res) => res.sendFile('feed.html', { root: PUBLIC_DIR }));
+app.get('/news.html', (req, res) => res.sendFile('feed.html', { root: PUBLIC_DIR }));
 app.get('/auth', (req, res) => res.sendFile('auth.html', { root: PUBLIC_DIR }));
 app.get('/login', (req, res) => res.sendFile('auth.html', { root: PUBLIC_DIR }));
 app.get('/registration', (req, res) => res.sendFile('auth.html', { root: PUBLIC_DIR }));

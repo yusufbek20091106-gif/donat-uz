@@ -7,6 +7,7 @@ const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const OTPS_FILE = path.join(DATA_DIR, 'otps.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const DONATIONS_FILE = path.join(DATA_DIR, 'donations.json');
+const POSTS_FILE = path.join(DATA_DIR, 'posts.json');
 
 // Ensure data files exist
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -53,6 +54,85 @@ if (!fs.existsSync(DONATIONS_FILE)) {
       system: 'Payme',
       date: 'Kecha, 20:15',
       createdAt: new Date(Date.now() - 86400000).toISOString()
+    }
+  ], null, 2), 'utf8');
+}
+if (!fs.existsSync(POSTS_FILE)) {
+  fs.writeFileSync(POSTS_FILE, JSON.stringify([
+    {
+      id: 'post_donatuz_v2',
+      author: 'donatuz_team',
+      authorName: 'DonatUZ Rasmiy',
+      authorHandle: '@donatuz_official',
+      authorAvatar: 'https://tirikchilik.uz/assets/LogoIcon-4c66e927.svg',
+      badge: 'Rasmiy Yangilanish',
+      badgeColor: '#ffc000',
+      tag: 'Yangilik',
+      title: 'DonatUZ 2.0 Katta Yangilanishi Ishga Tushirildi! 🚀',
+      content: 'Hurmatli ijodkorlar va obunachilar! DonatUZ platformasi yangi bosqichga qadam qo\'ydi:\n\n✨ Branded To\'lov Kartalari: Click, Payme va Uzum Bank kartalari orqali donat yuborish;\n🛒 Merch Do\'koni: Futbolkalar, kepkalar va eksklyuziv suvenirlar savatchasi hamda to\'liq yetkazib berish buyurtma formasi;\n🤖 Telegram Bot Integratsiyasi: Har bir donat va buyurtma soniyalarda ijodkorning Telegramiga to\'liq ma\'lumotlar bilan yetib boradi;\n🔍 Jonli Qidiruv va Toifalar: Ijodkorlar va merchlarni bir harfdanoq saralash;\n🎶 G\'alaba Sintezatori va Bayramona Konfetti: Donat tushganda haqiqiy Web Audio g\'alaba ohangi va tabrik modali.\n\nIjodingizni birgalikda yuksaklarga ko\'taramiz!',
+      image: 'https://tirikchilik.uz/assets/Main1-18bf3998.png',
+      likes: 142,
+      comments: [
+        { id: 'c1', name: 'Javohir', text: 'To\'lov kartalari dizayni juda chiroyli chiqibdi, barakalla!', time: '10 daqiqa oldin' },
+        { id: 'c2', name: 'Timur', text: 'Telegram botga tezkor xabar kelishi super qulay ekan!', time: '5 daqiqa oldin' }
+      ],
+      createdAt: new Date().toISOString(),
+      timeAgo: '15 daqiqa oldin'
+    },
+    {
+      id: 'post_trolluz_1',
+      author: 'trolluz',
+      authorName: 'TROLL.UZ',
+      authorHandle: '@trolluz',
+      authorAvatar: 'https://s3.devspace.uz/tirikchilik/IMG_1699.jpeg?x-id=GetObject',
+      badge: 'Ijodkor',
+      badgeColor: '#38bdf8',
+      tag: 'Sahna orti',
+      title: 'Yangi ko\'rsatuvimiz montaj jarayonida! 🎬',
+      content: 'Hammaga salom! Yangi katta satirik videomiz ssenariysi bitdi va hozir montaj stolida. Sahna ortidagi eng qiziqarli voqealar va kadrlarni birinchi bo\'lib aynan shu yangiliklar lentamizda e\'lon qilamiz. Bizni qo\'llab-quvvatlayotgan har bir saxiy yurtdoshimizga cheksiz minnatdorchilik bildiramiz!',
+      image: '',
+      likes: 89,
+      comments: [
+        { id: 'c3', name: 'Otabek', text: 'Premyerani intizorlik bilan kutyapmiz, omad!', time: '1 soat oldin' }
+      ],
+      createdAt: new Date(Date.now() - 3600000).toISOString(),
+      timeAgo: '1 soat oldin'
+    },
+    {
+      id: 'post_konsta_1',
+      author: 'konsta',
+      authorName: 'Konsta',
+      authorHandle: '@konsta',
+      authorAvatar: 'https://s3.devspace.uz/tirikchilik/production/avatar/94183624_22106680_avatar.jpeg',
+      badge: 'Musiqa',
+      badgeColor: '#a855f7',
+      tag: 'Eksklyuziv',
+      title: 'Yangi albomdan jonli akustik parcha 🎧',
+      content: 'Studiyada tuni bilan ishlab, yangi albomdagi eng yurakka yaqin treklardan birining akustik versiyasini yakunladik. DonatUZ orqali ijodimizga qanot berayotgan muxlislarimiz uchun yaqin kunlarda audio parchani taqdim etamiz. O\'zingizni asrang!',
+      image: '',
+      likes: 115,
+      comments: [
+        { id: 'c4', name: 'Madina', text: 'Konsta, har bir trekingiz haqiqiy she\'riyat!', time: '2 soat oldin' }
+      ],
+      createdAt: new Date(Date.now() - 7200000).toISOString(),
+      timeAgo: '2 soat oldin'
+    },
+    {
+      id: 'post_chumolilar_1',
+      author: 'chumolilar',
+      authorName: 'Chumolilar',
+      authorHandle: '@chumolilar',
+      authorAvatar: 'https://s3.devspace.uz/tirikchilik/IMG_0225.jpeg?x-id=GetObject',
+      badge: 'Strim',
+      badgeColor: '#22c55e',
+      tag: 'Strim',
+      title: 'Bugun soat 20:00 da jonli strimda uchrashamiz! 🔥',
+      content: 'Do\'stlar, bugun kechki payt YouTube va Twitch platformalarida jonli efir qilamiz! DonatUZ yangi OBS strim vidjetini ulab qo\'ydik — yuborgan har bir donatingiz va xabaringiz to\'g\'ridan-to\'g\'ri efirda aks etadi. Kirib salomlashib turinglar!',
+      image: '',
+      likes: 64,
+      comments: [],
+      createdAt: new Date(Date.now() - 18000000).toISOString(),
+      timeAgo: '5 soat oldin'
     }
   ], null, 2), 'utf8');
 }
@@ -120,6 +200,18 @@ function getDonations() {
 
 function saveDonations(donations) {
   fs.writeFileSync(DONATIONS_FILE, JSON.stringify(donations, null, 2), 'utf8');
+}
+
+function getPosts() {
+  try {
+    return JSON.parse(fs.readFileSync(POSTS_FILE, 'utf8'));
+  } catch {
+    return [];
+  }
+}
+
+function savePosts(posts) {
+  fs.writeFileSync(POSTS_FILE, JSON.stringify(posts, null, 2), 'utf8');
 }
 
 const DB = {
@@ -336,6 +428,68 @@ const DB = {
     }
 
     return newDonation;
+  },
+
+  // ==========================================
+  // 📰 YANGILIKLAR LENTASI (NEWS FEED & POSTS)
+  // ==========================================
+  getPosts(tag = null) {
+    const list = getPosts();
+    if (!tag || tag === 'all' || tag === 'barchasi') return list;
+    return list.filter(p => (p.tag || '').toLowerCase() === tag.toLowerCase());
+  },
+
+  createPost({ author, authorName, authorHandle, authorAvatar, title, content, image, tag, badge, badgeColor }) {
+    const posts = getPosts();
+    const newPost = {
+      id: 'post_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+      author: author || 'foydalanuvchi',
+      authorName: authorName || 'DonatUZ Muallifi',
+      authorHandle: authorHandle || ('@' + (author || 'muallif')),
+      authorAvatar: authorAvatar || 'https://tirikchilik.uz/assets/LogoIcon-4c66e927.svg',
+      badge: badge || 'Ijodkor',
+      badgeColor: badgeColor || '#ffc000',
+      tag: tag || 'Yangilik',
+      title: (title || '').trim(),
+      content: (content || '').trim(),
+      image: image || '',
+      likes: 0,
+      comments: [],
+      createdAt: new Date().toISOString(),
+      timeAgo: 'Hozirgina'
+    };
+
+    posts.unshift(newPost);
+    savePosts(posts);
+    return newPost;
+  },
+
+  likePost(postId) {
+    const posts = getPosts();
+    const post = posts.find(p => p.id === postId);
+    if (!post) return null;
+
+    post.likes = (post.likes || 0) + 1;
+    savePosts(posts);
+    return post;
+  },
+
+  addComment(postId, { name, text }) {
+    const posts = getPosts();
+    const post = posts.find(p => p.id === postId);
+    if (!post) return null;
+
+    if (!Array.isArray(post.comments)) post.comments = [];
+    const newComment = {
+      id: 'c_' + Date.now().toString(36),
+      name: (name || 'Muxlis').trim(),
+      text: (text || '').trim(),
+      time: 'Hozirgina'
+    };
+
+    post.comments.push(newComment);
+    savePosts(posts);
+    return newComment;
   }
 };
 

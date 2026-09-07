@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DonatUZ — Yangiliklar Lentasi</title>
+  <link rel="icon" type="image/x-icon" href="https://tirikchilik.uz/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Universal Header Styling */
+    header.main-navbar {
+      top: 0;
+      z-index: 1006;
+      position: fixed;
+      border-bottom: 1.5px solid #f1f5f9;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+    }
+    .nav-container {
+      height: 80px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      font-weight: 900;
+      font-size: 25px;
+      letter-spacing: -0.6px;
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .brand-logo:hover {
+      transform: scale(1.02);
+    }
+    nav.main-nav {
+      margin-left: 36px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-item-link {
+      color: #475569 !important;
+      font-weight: 600 !important;
+      font-size: 14.5px !important;
+      padding: 8px 16px !important;
+      border-radius: 10px !important;
+      text-decoration: none !important;
+      cursor: pointer !important;
+      background: transparent !important;
+      border: none !important;
+      transition: all 0.18s ease !important;
+      display: inline-flex !important;
+      align-items: center !important;
+    }
+    .nav-item-link:hover {
+      color: #0f172a !important;
+      background: #f1f5f9 !important;
+      transform: translateY(-1.5px) !important;
+    }
+    .nav-item-link.nav-active {
+      color: #0f172a !important;
+      font-weight: 800 !important;
+      background: #f8fafc !important;
+      position: relative !important;
+    }
+    .nav-item-link.nav-active::after {
+      content: '' !important;
+      position: absolute !important;
+      bottom: 0px !important;
+      left: 16px !important;
+      right: 16px !important;
+      height: 3px !important;
+      background: #ffc000 !important;
+      border-radius: 2px !important;
+    }
+
+    .btn-muallif-quiet {
+      border: 1px solid #e2e8f0 !important;
+      background: #ffffff !important;
+      color: #475569 !important;
+      font-weight: 600 !important;
+      font-size: 13.5px !important;
+      padding: 8px 16px !important;
+      border-radius: 10px !important;
+      text-decoration: none !important;
+      margin-right: 18px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      cursor: pointer !important;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    .btn-muallif-quiet:hover {
+      color: #0f172a !important;
+      background: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+      transform: translateY(-1.5px) !important;
+    }
+
+    .btn-kirish-special {
+      background: linear-gradient(135deg, #ffc000 0%, #f59e0b 100%) !important;
+      color: #0f172a !important;
+      font-weight: 800 !important;
+      font-size: 14.5px !important;
+      padding: 10px 24px !important;
+      border-radius: 12px !important;
+      border: none !important;
+      cursor: pointer !important;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.38) !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+      text-decoration: none !important;
+    }
+    .btn-kirish-special:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5) !important;
+    }
+
+    /* Main Feed Layout */
+    main.feed-layout {
+      margin-top: 80px;
+      flex: 1;
+      padding: 36px 20px 80px;
+    }
+    .feed-container {
+      max-width: 740px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Hero Headline */
+    .feed-hero {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .feed-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      margin-bottom: 12px;
+    }
+    .feed-hero-badge span.dot {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+    }
+    .feed-hero h1 {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.8px;
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+    .feed-hero p {
+      font-size: 15.5px;
+      color: #64748b;
+      max-width: 540px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* Category Chips Filter Bar */
+    .filter-chips-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 22px;
+      scrollbar-width: none;
+    }
+    .filter-chips-bar::-webkit-scrollbar {
+      display: none;
+    }
+    .feed-chip {
+      background: #ffffff;
+      color: #475569;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      user-select: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .feed-chip:hover {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+      transform: translateY(-1px);
+    }
+    .feed-chip.active {
+      background: #0f172a;
+      color: #ffc000;
+      border-color: #0f172a;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+    }
+
+    /* Compose Post Card */
+    .compose-card {
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      padding: 20px 24px;
+      margin-bottom: 26px;
+      transition: box-shadow 0.2s;
+    }
+    .compose-card:focus-within {
+      box-shadow: 0 6px 24px rgba(255, 192, 0, 0.15);
+      border-color: #ffc000;
+    }
+    .compose-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .compose-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ffc000;
+    }
+    .compose-input-title {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 15.5px;
+      font-weight: 700;
+      color: #0f172a;
+      font-family: inherit;
+      padding: 6px 0;
+      border-bottom: 1px dashed #e2e8f0;
+      margin-bottom: 10px;
+    }
+    .compose-input-title::placeholder {
+      color: #94a3b8;
+      font-weight: 500;
+    }
+    .compose-textarea {
+      width: 100%;
+      min-height: 80px;
+      border: none;
+      outline: none;
+      resize: vertical;
+      font-family: inherit;
+      font-size: 14.5px;
+      color: #1e293b;
+      line-height: 1.5;
+    }
+    .compose-textarea::placeholder {
+      color: #94a3b8;
+    }
+    .compose-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+      margin-top: 8px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .compose-options {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .tag-select {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      outline: none;
+      cursor: pointer;
+    }
+    .btn-submit-post {
+      background: linear-gradient(135deg, #ffc000 0%, #f59e0b 100%);
+      color: #0f172a;
+      border: none;
+      border-radius: 12px;
+      padding: 9px 20px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .btn-submit-post:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45);
+    }
+
+    /* Feed Post Card */
+    .post-card {
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.025);
+      padding: 24px;
+      margin-bottom: 22px;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+    .post-card:hover {
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.05);
+      border-color: #cbd5e1;
+    }
+    .post-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .post-author-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .post-author-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .post-author-avatar:hover {
+      transform: scale(1.06);
+    }
+    .post-author-meta {
+      display: flex;
+      flex-direction: column;
+    }
+    .post-author-name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .post-author-name {
+      font-size: 15.5px;
+      font-weight: 800;
+      color: #0f172a;
+      cursor: pointer;
+    }
+    .post-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .post-handle {
+      font-size: 13px;
+      color: #64748b;
+      font-weight: 500;
+    }
+    .post-time {
+      font-size: 12.5px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    /* Post Content */
+    .post-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .post-body {
+      font-size: 15px;
+      color: #334155;
+      line-height: 1.65;
+      white-space: pre-line;
+      margin-bottom: 16px;
+    }
+    .post-image-wrapper {
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      border: 1px solid #e2e8f0;
+      max-height: 380px;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .post-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .post-image-wrapper:hover img {
+      transform: scale(1.02);
+    }
+
+    /* Action Bar */
+    .post-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 16px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .action-group-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .post-action-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #64748b;
+      padding: 6px 12px;
+      border-radius: 10px;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .post-action-btn:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+      transform: translateY(-1px);
+    }
+    .post-action-btn.liked {
+      color: #ef4444 !important;
+      background: #fef2f2 !important;
+    }
+    .post-action-btn.liked svg {
+      fill: #ef4444;
+      stroke: #ef4444;
+      transform: scale(1.15);
+      transition: transform 0.2s;
+    }
+
+    .btn-donate-quick {
+      background: #ffc000;
+      color: #0f172a;
+      border: none;
+      border-radius: 999px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 2px 6px rgba(255, 192, 0, 0.3);
+      text-decoration: none;
+    }
+    .btn-donate-quick:hover {
+      background: #f59e0b;
+      transform: translateY(-1.5px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+
+    /* Comments Drawer / Section */
+    .comments-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed #e2e8f0;
+      display: none;
+    }
+    .comments-section.open {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .comment-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 13.5px;
+    }
+    .comment-bubble {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 10px 14px;
+      flex: 1;
+    }
+    .comment-author {
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .comment-time {
+      font-size: 11.5px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+    .comment-text {
+      color: #334155;
+      line-height: 1.45;
+    }
+    .comment-form {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .comment-input {
+      flex: 1;
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 9px 14px;
+      font-size: 13.5px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .comment-input:focus {
+      border-color: #ffc000;
+      background: #fff;
+    }
+    .btn-comment-send {
+      background: #0f172a;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 0 16px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-comment-send:hover {
+      background: #ffc000;
+      color: #000;
+    }
+
+    /* Toast Notification */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      z-index: 9999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .toast-msg.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Footer */
+    footer.main-footer {
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 40px 20px;
+      margin-top: auto;
+      font-size: 13.5px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Universal Header Navigation -->
+  <header class="main-navbar">
+    <div class="nav-container">
+      
+      <!-- Chap tomonda: DONATUZ Logotipi -->
+      <div style="display: flex; align-items: center;">
+        <a href="/" class="brand-logo">
+          <span style="color: #0f172a;">DONAT</span><span style="color: #ffc000;">UZ</span>
+        </a>
+
+        <!-- Asosiy Navigatsiya Menyusi -->
+        <nav class="main-nav">
+          <a href="/" class="nav-item-link">Asosiy</a>
+          <a href="/authors" class="nav-item-link">Mualliflar</a>
+          <a href="/lenta" class="nav-item-link nav-active">Lenta</a>
+          <a href="/market" class="nav-item-link">Market</a>
+          <a href="/instruction" class="nav-item-link">Yo'riqnoma</a>
+        </nav>
+      </div>
+
+      <!-- O'ng tomonda: Muallif bo'lish + Savatcha + Kirish -->
+      <div style="display: flex; align-items: center;">
+        <a href="/auth" class="btn-muallif-quiet">Muallif bo'lish</a>
+
+        <!-- Savatcha -->
+        <a href="/market" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; margin-right: 14px; text-decoration: none; position: relative;">
+          <img src="https://tirikchilik.uz/assets/Cart-3924b81c.svg" width="22" height="22" style="cursor: pointer;" alt="Cart" />
+          <span id="cartBadge" style="display:none; position:absolute; top:-2px; right:-2px; background:#ef4444; color:#fff; font-size:10px; font-weight:800; border-radius:50%; width:18px; height:18px; align-items:center; justify-content:center;">0</span>
+        </a>
+
+        <!-- Kirish -->
+        <a href="/auth" class="btn-kirish-special">
+          <span>Kirish</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Feed Layout -->
+  <main class="feed-layout">
+    <div class="feed-container">
+
+      <!-- Hero Header -->
+      <div class="feed-hero">
+        <div class="feed-hero-badge">
+          <span class="dot"></span>
+          <span>Jonli Faoliyat & Jamiyat</span>
+        </div>
+        <h1>Yangiliklar Lentasi</h1>
+        <p>Sevimli ijodkorlaringizning eng so'nggi yangiliklari, sahna orti jarayonlari va platformadagi barcha muhim xabarlar</p>
+      </div>
+
+      <!-- Filter Chips Bar -->
+      <div class="filter-chips-bar" id="feedFilterBar">
+        <button type="button" class="feed-chip active" data-tag="all">🌟 Barchasi</button>
+        <button type="button" class="feed-chip" data-tag="Yangilik">📢 Yangiliklar</button>
+        <button type="button" class="feed-chip" data-tag="Sahna orti">🎬 Sahna orti</button>
+        <button type="button" class="feed-chip" data-tag="Eksklyuziv">🔒 Eksklyuziv</button>
+        <button type="button" class="feed-chip" data-tag="Strim">🔥 Strimlar</button>
+      </div>
+
+      <!-- Compose Post Box -->
+      <div class="compose-card">
+        <div class="compose-header">
+          <img src="https://s3.devspace.uz/tirikchilik/IMG_1699.jpeg?x-id=GetObject" alt="Avatar" class="compose-avatar" id="composeAvatar" />
+          <div style="font-size: 14.5px; font-weight: 700; color: #0f172a;" id="composeAuthorName">Yangi post ulashish</div>
+        </div>
+        <input type="text" id="postTitleInput" class="compose-input-title" placeholder="Mavzu yoki sarlavha (ixtiyoriy)..." />
+        <textarea id="postContentInput" class="compose-textarea" placeholder="Nima yangiliklar bor? Obunachilaringizga xabar bering, sahna orti jarayonlarini ulashing..."></textarea>
+        
+        <div class="compose-footer">
+          <div class="compose-options">
+            <select id="postTagSelect" class="tag-select">
+              <option value="Yangilik">📢 Yangilik</option>
+              <option value="Sahna orti">🎬 Sahna orti</option>
+              <option value="Eksklyuziv">🔒 Eksklyuziv</option>
+              <option value="Strim">🔥 Strim</option>
+            </select>
+          </div>
+          <button type="button" id="btnPublishPost" class="btn-submit-post">
+            <span>Chiqarish</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stream of Posts Container -->
+      <div id="postsStreamContainer">
+        <!-- Rendered dynamically via JavaScript -->
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Toast Message -->
+  <div id="feedToast" class="toast-msg">Post muvaffaqiyatli e'lon qilindi!</div>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div style="max-width: 800px; margin: 0 auto; line-height: 1.8;">
+      <p style="font-weight: 800; font-size: 16px; color: #ffffff; margin-bottom: 8px;">
+        DONAT<span style="color: #ffc000;">UZ</span>
+      </p>
+      <p>© 2026 DonatUZ. Barcha huquqlar himoyalangan. O'zbekiston ijodkorlari va mustaqil mualliflar uchun birinchi raqamli donat xizmati.</p>
+    </div>
+  </footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/auth_state.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      let allPosts = [];
+      let activeTag = 'all';
+
+      const streamContainer = document.getElementById('postsStreamContainer');
+      const toastEl = document.getElementById('feedToast');
+
+      function showToast(msg) {
+        toastEl.innerText = msg;
+        toastEl.classList.add('show');
+        setTimeout(() => toastEl.classList.remove('show'), 3000);
+      }
+
+      // Fetch and render posts
+      async function loadPosts() {
+        try {
+          const res = await fetch('/api/posts');
+          const data = await res.json();
+          if (data.success && Array.isArray(data.posts)) {
+            allPosts = data.posts;
+            renderPosts();
+          }
+        } catch (err) {
+          console.error('Error loading posts:', err);
+        }
+      }
+
+      function renderPosts() {
+        const filtered = activeTag === 'all' 
+          ? allPosts 
+          : allPosts.filter(p => (p.tag || '').toLowerCase() === activeTag.toLowerCase());
+
+        if (filtered.length === 0) {
+          streamContainer.innerHTML = `
+            <div style="text-align: center; padding: 60px 20px; background: #fff; border-radius: 20px; border: 1.5px dashed #cbd5e1;">
+              <div style="font-size: 40px; margin-bottom: 12px;">📭</div>
+              <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 6px;">Ushbu toifada postlar topilmadi</h3>
+              <p style="color: #64748b; font-size: 14px;">Barcha postlarni ko'rish uchun "Barchasi" tugmasini bosing yoki yangi post ulashing.</p>
+            </div>
+          `;
+          return;
+        }
+
+        streamContainer.innerHTML = filtered.map(post => {
+          const badgeBg = post.badgeColor || '#ffc000';
+          const badgeTextColor = '#0f172a';
+          const isCreator = post.author !== 'donatuz_team';
+          const donateLink = isCreator ? ('/' + (post.author || 'trolluz')) : '/authors';
+
+          const commentsCount = Array.isArray(post.comments) ? post.comments.length : 0;
+          const commentsHtml = (post.comments || []).map(c => `
+            <div class="comment-item">
+              <div class="comment-bubble">
+                <div class="comment-author">
+                  <span>${escapeHtml(c.name || 'Muxlis')}</span>
+                  <span class="comment-time">${escapeHtml(c.time || 'Hozirgina')}</span>
+                </div>
+                <div class="comment-text">${escapeHtml(c.text || '')}</div>
+              </div>
+            </div>
+          `).join('');
+
+          return `
+            <article class="post-card" id="card-${post.id}">
+              <div class="post-top">
+                <div class="post-author-block">
+                  <img src="${post.authorAvatar || 'https://tirikchilik.uz/assets/LogoIcon-4c66e927.svg'}" alt="${escapeHtml(post.authorName)}" class="post-author-avatar" onclick="window.location.href='${donateLink}'" />
+                  <div class="post-author-meta">
+                    <div class="post-author-name-row">
+                      <span class="post-author-name" onclick="window.location.href='${donateLink}'">${escapeHtml(post.authorName)}</span>
+                      <span class="post-badge" style="background:${badgeBg}; color:${badgeTextColor};">${escapeHtml(post.badge || 'Post')}</span>
+                    </div>
+                    <span class="post-handle">${escapeHtml(post.authorHandle || '@muallif')}</span>
+                  </div>
+                </div>
+                <span class="post-time">${escapeHtml(post.timeAgo || 'Yaqinda')}</span>
+              </div>
+
+              ${post.title ? `<h2 class="post-title">${escapeHtml(post.title)}</h2>` : ''}
+              <div class="post-body">${escapeHtml(post.content)}</div>
+
+              ${post.image ? `
+                <div class="post-image-wrapper">
+                  <img src="${post.image}" alt="Post image" loading="lazy" onerror="this.parentElement.style.display='none'" />
+                </div>
+              ` : ''}
+
+              <div class="post-actions">
+                <div class="action-group-left">
+                  <!-- Like Button -->
+                  <button type="button" class="post-action-btn btn-like" data-id="${post.id}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    <span class="like-count">${post.likes || 0}</span>
+                  </button>
+
+                  <!-- Comments Toggle -->
+                  <button type="button" class="post-action-btn btn-comments-toggle" data-id="${post.id}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <span>${commentsCount} izoh</span>
+                  </button>
+
+                  <!-- Share Link -->
+                  <button type="button" class="post-action-btn btn-share" data-id="${post.id}">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    <span>Ulashish</span>
+                  </button>
+                </div>
+
+                <!-- Donat qilish tugmasi -->
+                <a href="${donateLink}" class="btn-donate-quick">
+                  <span>🎁 Qo'llash</span>
+                </a>
+              </div>
+
+              <!-- Comments Section -->
+              <div class="comments-section" id="comments-${post.id}">
+                <div class="comments-list">${commentsHtml}</div>
+                <form class="comment-form" onsubmit="return false;">
+                  <input type="text" class="comment-input" placeholder="O'z fikringizni bildiring..." />
+                  <button type="button" class="btn-comment-send" data-id="${post.id}">Yuborish</button>
+                </form>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+        wireInteractions();
+      }
+
+      function wireInteractions() {
+        // Like buttons
+        document.querySelectorAll('.btn-like').forEach(btn => {
+          btn.onclick = async (e) => {
+            e.preventDefault();
+            const id = btn.dataset.id;
+            try {
+              const res = await fetch('/api/posts/' + id + '/like', { method: 'POST' });
+              const data = await res.json();
+              if (data.success) {
+                btn.classList.add('liked');
+                btn.querySelector('.like-count').innerText = data.likes;
+                const target = allPosts.find(p => p.id === id);
+                if (target) target.likes = data.likes;
+              }
+            } catch (err) {
+              console.error('Like error:', err);
+            }
+          };
+        });
+
+        // Comments toggle
+        document.querySelectorAll('.btn-comments-toggle').forEach(btn => {
+          btn.onclick = (e) => {
+            e.preventDefault();
+            const id = btn.dataset.id;
+            const sec = document.getElementById('comments-' + id);
+            if (sec) sec.classList.toggle('open');
+          };
+        });
+
+        // Send comment
+        document.querySelectorAll('.btn-comment-send').forEach(btn => {
+          btn.onclick = async (e) => {
+            e.preventDefault();
+            const id = btn.dataset.id;
+            const form = btn.closest('.comment-form');
+            const input = form.querySelector('.comment-input');
+            const text = (input.value || '').trim();
+            if (!text) return;
+
+            let authorName = 'Muxlis';
+            try {
+              const u = JSON.parse(localStorage.getItem('donatuz_user') || '{}');
+              if (u.name) authorName = u.name;
+            } catch {}
+
+            try {
+              const res = await fetch('/api/posts/' + id + '/comment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: authorName, text })
+              });
+              const data = await res.json();
+              if (data.success) {
+                input.value = '';
+                const list = form.previousElementSibling;
+                const newCommentHtml = `
+                  <div class="comment-item" style="animation: fadeIn 0.3s ease;">
+                    <div class="comment-bubble">
+                      <div class="comment-author">
+                        <span>${escapeHtml(data.comment.name)}</span>
+                        <span class="comment-time">${escapeHtml(data.comment.time)}</span>
+                      </div>
+                      <div class="comment-text">${escapeHtml(data.comment.text)}</div>
+                    </div>
+                  </div>
+                `;
+                list.insertAdjacentHTML('beforeend', newCommentHtml);
+                showToast("Izohingiz qo'shildi! 💬");
+              }
+            } catch (err) {
+              console.error('Comment error:', err);
+            }
+          };
+        });
+
+        // Share button
+        document.querySelectorAll('.btn-share').forEach(btn => {
+          btn.onclick = (e) => {
+            e.preventDefault();
+            const url = window.location.origin + '/lenta#card-' + btn.dataset.id;
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(url);
+              showToast("Havola nusxalandi! 🔗");
+            } else {
+              showToast("Havola: " + url);
+            }
+          };
+        });
+      }
+
+      // Filter chips
+      document.querySelectorAll('#feedFilterBar .feed-chip').forEach(chip => {
+        chip.onclick = () => {
+          document.querySelectorAll('#feedFilterBar .feed-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          activeTag = chip.dataset.tag;
+          renderPosts();
+        };
+      });
+
+      // Compose post submit
+      const btnPublish = document.getElementById('btnPublishPost');
+      const titleInput = document.getElementById('postTitleInput');
+      const contentInput = document.getElementById('postContentInput');
+      const tagSelect = document.getElementById('postTagSelect');
+
+      btnPublish.onclick = async () => {
+        const title = (titleInput.value || '').trim();
+        const content = (contentInput.value || '').trim();
+        const tag = tagSelect.value;
+
+        if (!content) {
+          alert("Iltimos, post matnini kiriting!");
+          contentInput.focus();
+          return;
+        }
+
+        let user = { name: 'TROLL.UZ', username: 'trolluz', avatar: 'https://s3.devspace.uz/tirikchilik/IMG_1699.jpeg?x-id=GetObject' };
+        try {
+          const stored = JSON.parse(localStorage.getItem('donatuz_user') || '{}');
+          if (stored.name) user = stored;
+        } catch {}
+
+        try {
+          btnPublish.disabled = true;
+          btnPublish.innerHTML = '<span>Chiqarilmoqda...</span>';
+
+          const res = await fetch('/api/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              author: user.username || 'muallif',
+              authorName: user.name || 'Muallif',
+              authorHandle: '@' + (user.username || 'muallif'),
+              authorAvatar: user.avatar || 'https://tirikchilik.uz/assets/LogoIcon-4c66e927.svg',
+              title,
+              content,
+              tag,
+              badge: 'Yangi Post',
+              badgeColor: '#ffc000'
+            })
+          });
+
+          const data = await res.json();
+          if (data.success) {
+            titleInput.value = '';
+            contentInput.value = '';
+            allPosts.unshift(data.post);
+            renderPosts();
+            showToast("Yangi post muvaffaqiyatli e'lon qilindi! 🚀");
+          }
+        } catch (err) {
+          console.error('Post creation error:', err);
+        } finally {
+          btnPublish.disabled = false;
+          btnPublish.innerHTML = `
+            <span>Chiqarish</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          `;
+        }
+      };
+
+      // Socket.IO real-time sync
+      try {
+        if (typeof io !== 'undefined') {
+          const socket = io();
+          socket.on('new_post', (post) => {
+            if (!allPosts.some(p => p.id === post.id)) {
+              allPosts.unshift(post);
+              renderPosts();
+              showToast("Yangi post paydo bo'ldi! ✨");
+            }
+          });
+          socket.on('post_liked', (data) => {
+            const post = allPosts.find(p => p.id === data.id);
+            if (post) {
+              post.likes = data.likes;
+              const card = document.getElementById('card-' + data.id);
+              if (card) {
+                const countEl = card.querySelector('.like-count');
+                if (countEl) countEl.innerText = data.likes;
+              }
+            }
+          });
+        }
+      } catch (err) {
+        console.warn('Socket connection error:', err);
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      // Initial load
+      loadPosts();
+    })();
+  </script>
+</body>
+</html>
