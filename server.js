@@ -5,6 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const DB = require('./db.js');
 const Telegram = require('./telegram.js');
+const Octo = require('./octo.js');
 
 const app = express();
 const server = http.createServer(app);
@@ -289,6 +290,87 @@ app.post('/api/donate', async (req, res) => {
     console.error('Error donate:', err);
     res.status(500).json({ success: false, message: "Donat qabul qilishda xatolik yuz berdi" });
   }
+});
+
+// ==========================================
+// 💳 OCTO PAYMENT GATEWAY API (CLICK, PAYME, UZCARD, HUMO, VISA, MC)
+// ==========================================
+app.post('/api/payments/octo/create', async (req, res) => {
+  try {
+    const { amount, username, message, creator, returnUrl, isTest } = req.body;
+    const host = req.get('host') || 'localhost:3000';
+    const protocol = req.protocol || 'http';
+    const dynamicReturn = returnUrl || `${protocol}://${host}/${creator || 'trolluz'}`;
+    const dynamicNotify = `${protocol}://${host}/api/payments/octo/notify`;
+
+    const result = await Octo.prepareOctoPayment({
+      amount: parseInt(amount, 10) || 15000,
+      username,
+      message,
+      creator: creator || 'trolluz',
+      returnUrl: dynamicReturn,
+      notifyUrl: dynamicNotify,
+      isTest: isTest !== undefined ? isTest : false
+    });
+
+    res.json(result);
+  } catch (err) {
+    console.error('Octo create payment error:', err.message);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/payments/octo/notify', async (req, res) => {
+  try {
+    const notifyData = req.body;
+    console.log('\n🔔 [OCTO WEBHOOK RECEIVED]:', JSON.stringify(notifyData, null, 2));
+
+    const { shop_transaction_id, octo_payment_UUID, status, total_sum } = notifyData;
+
+    if (status === 'succeeded') {
+      const pending = Octo.getPendingPayment(shop_transaction_id);
+      const donorName = pending ? pending.username : 'Aziz obunachi';
+      const donorMsg = pending ? pending.message : "Octo orqali to'lov";
+      const creator = pending ? pending.creator : 'trolluz';
+      const amount = Number(total_sum) || (pending ? pending.amount : 15000);
+
+      Octo.markPaymentSuccess(shop_transaction_id);
+
+      const donation = DB.createDonation({
+        username: donorName,
+        amount: amount,
+        message: donorMsg,
+        paymentMethod: 'Octo (' + (notifyData.card_vendor || 'Karta') + ')',
+        creator: creator
+      });
+
+      dashboardState.balance += amount;
+      dashboardState.count += 1;
+      dashboardState.goal.current += amount;
+      dashboardState.donations.unshift(donation);
+
+      // Emit real-time alert to OBS and dashboard
+      io.emit('new_donation', donation);
+
+      // Notify Telegram
+      Telegram.sendDonationAlert(donation).catch(e => console.error('Telegram alert err:', e.message));
+
+      console.log(`✅ [OCTO TO'LOV TASDIQLANDI]: ${donorName} -> ${creator} (${amount} UZS)`);
+    }
+
+    res.json({ accept: 'success' });
+  } catch (err) {
+    console.error('Octo webhook error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/payments/octo/check/:trx', (req, res) => {
+  const pending = Octo.getPendingPayment(req.params.trx);
+  if (!pending) {
+    return res.status(404).json({ success: false, message: "Tranzaksiya topilmadi" });
+  }
+  res.json({ success: true, payment: pending });
 });
 
 // ==========================================

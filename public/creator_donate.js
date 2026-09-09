@@ -570,7 +570,39 @@
       }
 
       try {
-        const response = await fetch('/api/donate', {
+        const response = await fetch('/api/payments/octo/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: name,
+            amount: amount,
+            message: msg,
+            creator: 'trolluz'
+          })
+        });
+
+        const data = await response.json();
+        if (data.success && data.payUrl) {
+          window.location.href = data.payUrl;
+          return;
+        } else {
+          // Fallback to instant celebration
+          await fetch('/api/donate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: name,
+              amount: amount,
+              message: msg,
+              paymentMethod: selectedPayment,
+              creator: 'trolluz'
+            })
+          });
+          showCelebration(amount, name, msg);
+        }
+      } catch (err) {
+        console.error('Donation error:', err);
+        await fetch('/api/donate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -581,11 +613,6 @@
             creator: 'trolluz'
           })
         });
-
-        const data = await response.json();
-        showCelebration(amount, name, msg);
-      } catch (err) {
-        console.error('Donation error:', err);
         showCelebration(amount, name, msg);
       } finally {
         if (submitBtn) {
@@ -601,12 +628,27 @@
     });
   }
 
+  // Check if returning from successful payment
+  function checkUrlStatus() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('status') === 'success') {
+      const amount = urlParams.get('amount') || '50000';
+      const donor = decodeURIComponent(urlParams.get('donor') || 'Aziz obunachi');
+      const msg = decodeURIComponent(urlParams.get('msg') || 'Ijodingizga baraka!');
+      setTimeout(() => {
+        showCelebration(amount, donor, msg);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }, 500);
+    }
+  }
+
   // --- 6. INIT ---
   function init() {
     setupPaymentMethods();
     setupAmountPills();
     setupFormSubmission();
     createCelebrationModal();
+    checkUrlStatus();
   }
 
   if (document.readyState === 'loading') {
