@@ -8,9 +8,47 @@ const OTPS_FILE = path.join(DATA_DIR, 'otps.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const DONATIONS_FILE = path.join(DATA_DIR, 'donations.json');
 const POSTS_FILE = path.join(DATA_DIR, 'posts.json');
+const BANNERS_FILE = path.join(DATA_DIR, 'banners.json');
 
 // Ensure data files exist
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+if (!fs.existsSync(BANNERS_FILE)) {
+  fs.writeFileSync(BANNERS_FILE, JSON.stringify([
+    {
+      id: 'bnr_home_1',
+      placement: 'home_hero',
+      title: 'DonatUZ 2.0 — Ijodkorlar Uchun Qulay Donat Ekotizimi',
+      subtitle: 'Click, Payme, Uzcard, Humo va Xalqaro kartalar orqali bir zumda to\'lov qabul qiling!',
+      imageUrl: 'https://tirikchilik.uz/assets/Main1-18bf3998.png',
+      linkUrl: '/auth',
+      badge: 'YANGI TALQIN',
+      active: true,
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'bnr_creator_1',
+      placement: 'creator_header',
+      title: 'Eksklyuziv Merch va Jonli Efirlar',
+      subtitle: 'Sevimli ijodkoringizni qo\'llab-quvvatlang va maxsus sovg\'alarga ega bo\'ling',
+      imageUrl: 'https://s3.devspace.uz/tirikchilik/local/banner/51586859_76892672_banner.png',
+      linkUrl: '/market',
+      badge: 'TOP STRIM',
+      active: true,
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'bnr_feed_1',
+      placement: 'feed_ad',
+      title: 'DonatUZ Market — Rasmiy Merch Do\'koni',
+      subtitle: 'O\'zbekiston bo\'ylab sifatli va tezkor yetkazib berish xizmati mavjud',
+      imageUrl: 'https://tirikchilik.uz/assets/Main1-18bf3998.png',
+      linkUrl: '/market',
+      badge: 'MERCH DO\'KONI',
+      active: true,
+      createdAt: new Date().toISOString()
+    }
+  ], null, 2), 'utf8');
+}
 if (!fs.existsSync(USERS_FILE)) {
   fs.writeFileSync(USERS_FILE, JSON.stringify([
     {
@@ -490,6 +528,102 @@ const DB = {
     post.comments.push(newComment);
     savePosts(posts);
     return newComment;
+  },
+
+  // --- BANNERS MANAGEMENT ---
+  getBanners(placement) {
+    try {
+      if (!fs.existsSync(BANNERS_FILE)) return [];
+      const banners = JSON.parse(fs.readFileSync(BANNERS_FILE, 'utf8') || '[]');
+      if (placement) {
+        return banners.filter(b => b.placement === placement && b.active !== false);
+      }
+      return banners.filter(b => b.active !== false);
+    } catch {
+      return [];
+    }
+  },
+
+  getAllBanners() {
+    try {
+      if (!fs.existsSync(BANNERS_FILE)) return [];
+      return JSON.parse(fs.readFileSync(BANNERS_FILE, 'utf8') || '[]');
+    } catch {
+      return [];
+    }
+  },
+
+  saveBanners(banners) {
+    fs.writeFileSync(BANNERS_FILE, JSON.stringify(banners, null, 2), 'utf8');
+  },
+
+  createBanner(data) {
+    const banners = this.getAllBanners();
+    const newBanner = {
+      id: 'bnr_' + Date.now().toString(36),
+      title: (data.title || '').trim(),
+      subtitle: (data.subtitle || '').trim(),
+      imageUrl: (data.imageUrl || '').trim(),
+      linkUrl: (data.linkUrl || '/').trim(),
+      placement: data.placement || 'home_hero',
+      badge: (data.badge || 'PROMO').trim(),
+      active: data.active !== false,
+      createdAt: new Date().toISOString()
+    };
+    banners.unshift(newBanner);
+    this.saveBanners(banners);
+    return newBanner;
+  },
+
+  updateBanner(id, updates) {
+    const banners = this.getAllBanners();
+    const idx = banners.findIndex(b => b.id === id);
+    if (idx === -1) return null;
+    banners[idx] = { ...banners[idx], ...updates, updatedAt: new Date().toISOString() };
+    this.saveBanners(banners);
+    return banners[idx];
+  },
+
+  deleteBanner(id) {
+    const banners = this.getAllBanners();
+    const filtered = banners.filter(b => b.id !== id);
+    if (filtered.length === banners.length) return false;
+    this.saveBanners(filtered);
+    return true;
+  },
+
+  // --- ADMIN OVERVIEW & CREATORS ---
+  getAdminOverview() {
+    const donations = this.getDonations ? this.getDonations() : [];
+    const orders = this.getOrders ? this.getOrders() : [];
+    const banners = this.getAllBanners();
+
+    const donSum = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+    const orderSum = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+    const totalTurnover = donSum + orderSum;
+
+    return {
+      totalTurnover,
+      donationsSum: donSum,
+      ordersSum: orderSum,
+      donationsCount: donations.length,
+      ordersCount: orders.length,
+      creatorsCount: 6,
+      activeBannersCount: banners.filter(b => b.active).length,
+      platformFee: Math.round(totalTurnover * 0.05),
+      octoPaymentsCount: donations.filter(d => (d.paymentMethod || d.system || '').toLowerCase().includes('octo')).length
+    };
+  },
+
+  getAllCreators() {
+    return [
+      { id: 'c1', username: 'trolluz', name: 'TROLL.UZ', category: 'Vaynerlar', verified: true, balance: 1450000, donatesCount: 14, avatar: 'https://s3.devspace.uz/tirikchilik/IMG_1699.jpeg?x-id=GetObject' },
+      { id: 'c2', username: 'konsta', name: 'Konsta', category: 'Musiqa', verified: true, balance: 890000, donatesCount: 9, avatar: 'https://tirikchilik.uz/assets/LogoIcon-4c66e927.svg' },
+      { id: 'c3', username: 'chumolilar', name: 'Chumolilar', category: 'Vaynerlar', verified: true, balance: 520000, donatesCount: 6, avatar: 'https://tirikchilik.uz/assets/LogoIcon-4c66e927.svg' },
+      { id: 'c4', username: 'doppitwins', name: 'Doppi Twins', category: 'Media', verified: false, balance: 310000, donatesCount: 4, avatar: 'https://tirikchilik.uz/assets/LogoIcon-4c66e927.svg' },
+      { id: 'c5', username: 'yakudza', name: 'YAKUDZA', category: 'Strim', verified: true, balance: 750000, donatesCount: 8, avatar: 'https://tirikchilik.uz/assets/LogoIcon-4c66e927.svg' },
+      { id: 'c6', username: 'bezzbets', name: 'Bezzbets', category: 'Strim', verified: false, balance: 120000, donatesCount: 2, avatar: 'https://tirikchilik.uz/assets/LogoIcon-4c66e927.svg' }
+    ];
   }
 };
 

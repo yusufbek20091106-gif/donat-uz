@@ -436,6 +436,89 @@ app.post('/api/telegram/test', async (req, res) => {
 });
 
 // ==========================================
+// 🖼️ BANNERLAR BOSHQARUVI API (BANNER MANAGER)
+// ==========================================
+app.get('/api/banners', (req, res) => {
+  try {
+    const { placement } = req.query;
+    const banners = DB.getBanners(placement);
+    res.json({ success: true, banners });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.get('/api/admin/banners', (req, res) => {
+  try {
+    const banners = DB.getAllBanners();
+    res.json({ success: true, banners });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/admin/banners', (req, res) => {
+  try {
+    const { title, subtitle, imageUrl, linkUrl, placement, badge, active } = req.body;
+    if (!title || !imageUrl) {
+      return res.status(400).json({ success: false, message: "Sarlavha va rasm havolasi kiritilishi shart" });
+    }
+    const banner = DB.createBanner({ title, subtitle, imageUrl, linkUrl, placement, badge, active });
+    io.emit('banners_updated');
+    res.json({ success: true, message: "Yangi banner muvaffaqiyatli qo'shildi!", banner });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.put('/api/admin/banners/:id', (req, res) => {
+  try {
+    const banner = DB.updateBanner(req.params.id, req.body);
+    if (!banner) {
+      return res.status(404).json({ success: false, message: "Banner topilmadi" });
+    }
+    io.emit('banners_updated');
+    res.json({ success: true, message: "Banner yangilandi", banner });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.delete('/api/admin/banners/:id', (req, res) => {
+  try {
+    const ok = DB.deleteBanner(req.params.id);
+    if (!ok) {
+      return res.status(404).json({ success: false, message: "Banner topilmadi" });
+    }
+    io.emit('banners_updated');
+    res.json({ success: true, message: "Banner o'chirildi" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ==========================================
+// 👑 SUPER ADMIN PLATFORMA STATISTIKASI & IJODKORLAR
+// ==========================================
+app.get('/api/admin/overview', (req, res) => {
+  try {
+    const overview = DB.getAdminOverview();
+    res.json({ success: true, overview });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.get('/api/admin/creators', (req, res) => {
+  try {
+    const creators = DB.getAllCreators();
+    res.json({ success: true, creators });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ==========================================
 // 🛒 MERCH MARKET BUYURTMA API
 // ==========================================
 app.post('/api/orders', async (req, res) => {
@@ -597,11 +680,13 @@ app.get('/market', (req, res) => res.sendFile('market.html', { root: PUBLIC_DIR 
 app.get('/shop', (req, res) => res.sendFile('market.html', { root: PUBLIC_DIR }));
 app.get('/instruction', (req, res) => res.sendFile('instruction.html', { root: PUBLIC_DIR }));
 app.get('/help', (req, res) => res.sendFile('instruction.html', { root: PUBLIC_DIR }));
-app.get('/dashboard', (req, res) => res.sendFile('dashboard.html', { root: PUBLIC_DIR }));
-app.get('/dashboard.html', (req, res) => res.sendFile('dashboard.html', { root: PUBLIC_DIR }));
-app.get('/admin', (req, res) => res.sendFile('dashboard.html', { root: PUBLIC_DIR }));
-app.get('/admin.html', (req, res) => res.sendFile('dashboard.html', { root: PUBLIC_DIR }));
-app.get('/panel', (req, res) => res.sendFile('dashboard.html', { root: PUBLIC_DIR }));
+app.get('/dashboard', (req, res) => res.sendFile('creator_dashboard.html', { root: PUBLIC_DIR }));
+app.get('/dashboard.html', (req, res) => res.sendFile('creator_dashboard.html', { root: PUBLIC_DIR }));
+app.get('/creator-panel', (req, res) => res.sendFile('creator_dashboard.html', { root: PUBLIC_DIR }));
+app.get('/admin', (req, res) => res.sendFile('admin_panel.html', { root: PUBLIC_DIR }));
+app.get('/admin.html', (req, res) => res.sendFile('admin_panel.html', { root: PUBLIC_DIR }));
+app.get('/superadmin', (req, res) => res.sendFile('admin_panel.html', { root: PUBLIC_DIR }));
+app.get('/panel', (req, res) => res.sendFile('admin_panel.html', { root: PUBLIC_DIR }));
 app.get('/creator', (req, res) => res.sendFile('creator.html', { root: PUBLIC_DIR }));
 app.get('/trolluz', (req, res) => res.sendFile('creator.html', { root: PUBLIC_DIR }));
 app.get('/widget', (req, res) => res.sendFile('widget.html', { root: PUBLIC_DIR }));

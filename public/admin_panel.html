@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DonatUZ — Platforma Super Admin Boshqaruvi</title>
+  <link rel="icon" type="image/x-icon" href="https://tirikchilik.uz/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+    :root {
+      --bg-main: #070a12;
+      --bg-sidebar: #0b0f19;
+      --panel-bg: rgba(15, 23, 42, 0.75);
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --panel-hover: rgba(255, 255, 255, 0.03);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --gold: #ffc000;
+      --gold-gradient: linear-gradient(135deg, #ffc000 0%, #f59e0b 100%);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.25);
+      --sky: #38bdf8;
+      --rose: #f43f5e;
+      --purple: #a855f7;
+      --input-bg: rgba(11, 15, 25, 0.9);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    }
+
+    body {
+      background: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Top Universal Header */
+    .admin-topbar {
+      height: 72px;
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--panel-border);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .badge-superadmin {
+      background: linear-gradient(135deg, #ef4444 0%, #f59e0b 100%);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 999px;
+      box-shadow: 0 2px 10px rgba(239, 68, 68, 0.35);
+    }
+
+    .system-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--panel-border);
+    }
+
+    .system-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .top-link-btn {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--panel-border);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .top-link-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-gold {
+      background: var(--gold-gradient);
+      color: #0b0f19;
+      font-weight: 800;
+      font-size: 13.5px;
+      border: none;
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+    }
+    .btn-gold:hover {
+      transform: translateY(-1.5px);
+      box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
+    }
+
+    /* Layout Shell */
+    .admin-shell {
+      display: flex;
+      min-height: calc(100vh - 72px);
+    }
+
+    /* Sidebar */
+    .admin-sidebar {
+      width: 270px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--panel-border);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-section-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      padding: 8px 12px;
+      margin-top: 8px;
+    }
+
+    .sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      text-decoration: none;
+    }
+    .sidebar-nav-item:hover {
+      color: #ffffff;
+      background: var(--panel-hover);
+    }
+    .sidebar-nav-item.active {
+      color: var(--gold);
+      background: rgba(255, 192, 0, 0.08);
+      border: 1px solid rgba(255, 192, 0, 0.2);
+    }
+
+    .sidebar-nav-item i {
+      font-size: 18px;
+    }
+
+    .nav-badge {
+      background: #f43f5e;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 999px;
+      margin-left: auto;
+    }
+
+    /* Main Content */
+    .admin-content {
+      flex: 1;
+      padding: 32px;
+      max-width: 1440px;
+      overflow-y: auto;
+    }
+
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .tab-pane.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Content Header */
+    .content-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+    .content-header h1 {
+      font-size: 26px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+    .content-header p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+    .stat-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+    .stat-card:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+      transform: translateY(-2px);
+    }
+    .stat-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .stat-card-label {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+    }
+    .stat-card-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .stat-card-value {
+      font-size: 28px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .stat-card-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Glass Box */
+    .glass-box {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(12px);
+    }
+    .glass-box-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .glass-box-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Banners Grid */
+    .banners-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 18px;
+    }
+    .banner-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.2s ease;
+    }
+    .banner-card:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+    }
+    .banner-card-img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      background: #0f172a;
+    }
+    .banner-card-body {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .banner-card-badge {
+      align-self: flex-start;
+      font-size: 10.5px;
+      font-weight: 900;
+      padding: 2px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      background: rgba(255, 192, 0, 0.15);
+      color: var(--gold);
+    }
+    .banner-card-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+    .banner-card-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    .banner-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--panel-border);
+    }
+
+    /* Tables */
+    .admin-table-container {
+      overflow-x: auto;
+    }
+    table.admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13.5px;
+    }
+    table.admin-table th {
+      padding: 12px 16px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+    table.admin-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--panel-border);
+      color: var(--text-main);
+    }
+    table.admin-table tr:hover td {
+      background: var(--panel-hover);
+    }
+
+    /* Badges */
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .badge-status.active { background: rgba(16, 185, 129, 0.18); color: var(--emerald); }
+    .badge-status.inactive { background: rgba(148, 163, 184, 0.18); color: var(--text-muted); }
+    .badge-status.gold { background: rgba(255, 192, 0, 0.18); color: var(--gold); }
+
+    /* Modal Form */
+    .admin-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .admin-modal-overlay.open {
+      display: flex;
+    }
+    .admin-modal-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 540px;
+      padding: 26px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      animation: modalPop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes modalPop {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--gold);
+    }
+
+    /* Toast */
+    .admin-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #0f172a;
+      border: 1px solid var(--panel-border);
+      color: #ffffff;
+      padding: 14px 22px;
+      border-radius: var(--radius-md);
+      font-weight: 800;
+      font-size: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 99999;
+      transform: translateY(120px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .admin-toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Universal Header -->
+  <header class="admin-topbar">
+    <div class="brand-group">
+      <a href="/" class="brand-logo">
+        <span style="color: #ffffff;">DONAT</span><span style="color: #ffc000;">UZ</span>
+      </a>
+      <span class="badge-superadmin">Super Admin</span>
+      <div class="system-status">
+        <span class="system-status-dot"></span>
+        <span>Platform Online (0.0.0.0:3000)</span>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <a href="/dashboard" class="top-link-btn" style="color:var(--gold); border-color:rgba(255,192,0,0.25);">
+        <i class="mdi mdi-broadcast"></i>
+        <span>Ijodkor Kabineti (OBS)</span>
+      </a>
+      <a href="/" target="_blank" class="top-link-btn">
+        <i class="mdi mdi-open-in-new"></i>
+        <span>Saytni Ko'rish</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Admin Shell -->
+  <div class="admin-shell">
+
+    <!-- Left Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-section-title">Boshqaruv Markazi</div>
+
+      <div class="sidebar-nav-item active" data-tab="overview">
+        <i class="mdi mdi-view-dashboard-outline"></i>
+        <span>Umumiy Monitoring</span>
+      </div>
+
+      <div class="sidebar-nav-item" data-tab="banners">
+        <i class="mdi mdi-image-multiple-outline"></i>
+        <span>Bannerlar Menejeri</span>
+        <span class="nav-badge" id="bannersCountBadge">3</span>
+      </div>
+
+      <div class="sidebar-nav-item" data-tab="creators">
+        <i class="mdi mdi-account-group-outline"></i>
+        <span>Ijodkorlar Ro'yxati</span>
+      </div>
+
+      <div class="sidebar-nav-item" data-tab="payments">
+        <i class="mdi mdi-credit-card-check-outline"></i>
+        <span>Moliya & To'lovlar</span>
+      </div>
+
+      <div class="sidebar-section-title">Tizim</div>
+
+      <div class="sidebar-nav-item" data-tab="settings">
+        <i class="mdi mdi-cog-outline"></i>
+        <span>Platforma Sozlamalari</span>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-content">
+
+      <!-- TAB 1: OVERVIEW -->
+      <section id="tab-overview" class="tab-pane active">
+        <div class="content-header">
+          <div>
+            <h1>Platforma Umumiy Statistikasi 🌐</h1>
+            <p>DonatUZ bo'yicha barcha ijodkorlar, to'lov aylanmasi va Octo gateway ko'rsatkichlari.</p>
+          </div>
+          <button class="btn-gold" onclick="loadAdminOverview()">🔄 Yangilash</button>
+        </div>
+
+        <!-- 4 KPI Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-card-label">Jami Aylanma</span>
+              <div class="stat-card-icon" style="background:rgba(255,192,0,0.15); color:var(--gold);">💰</div>
+            </div>
+            <div class="stat-card-value" id="kpiTurnover">1,850,000 so'm</div>
+            <div class="stat-card-sub" style="color:var(--emerald);">
+              <span>↗ Donatlar + Merch buyurtmalari</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-card-label">Platforma Daromadi (5%)</span>
+              <div class="stat-card-icon" style="background:rgba(16,185,129,0.15); color:var(--emerald);">📈</div>
+            </div>
+            <div class="stat-card-value" id="kpiPlatformFee" style="color:var(--emerald);">92,500 so'm</div>
+            <div class="stat-card-sub">
+              <span>Komissiya hisobidan sof foyda</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-card-label">Faol Ijodkorlar</span>
+              <div class="stat-card-icon" style="background:rgba(56,189,248,0.15); color:var(--sky);">👥</div>
+            </div>
+            <div class="stat-card-value" id="kpiCreators">6 ta</div>
+            <div class="stat-card-sub">
+              <span>TROLL.UZ, Konsta, Chumolilar...</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <span class="stat-card-label">Octo Gateway To'lovlari</span>
+              <div class="stat-card-icon" style="background:rgba(168,85,247,0.15); color:var(--purple);">⚡</div>
+            </div>
+            <div class="stat-card-value" id="kpiOctoCount">Jonli Ulanish</div>
+            <div class="stat-card-sub" style="color:var(--sky);">
+              <span>Shop ID: 43006 faol</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Banners & Creators Highlight -->
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px;">
+          <div class="glass-box">
+            <div class="glass-box-header">
+              <div class="glass-box-title">
+                <i class="mdi mdi-image-multiple-outline" style="color:var(--gold);"></i>
+                <span>Faol Bannerlar</span>
+              </div>
+              <button class="top-link-btn" onclick="switchTab('banners')">Boshqarish ➔</button>
+            </div>
+            <div id="quickBannersList" class="banners-grid">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <div class="glass-box">
+            <div class="glass-box-header">
+              <div class="glass-box-title">
+                <i class="mdi mdi-star-outline" style="color:var(--gold);"></i>
+                <span>Top Ijodkorlar</span>
+              </div>
+            </div>
+            <div id="quickCreatorsList" style="display:flex; flex-direction:column; gap:12px;">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: BANNERS MANAGER -->
+      <section id="tab-banners" class="tab-pane">
+        <div class="content-header">
+          <div>
+            <h1>Bannerlar Menejeri 🖼️</h1>
+            <p>Bosh sahifa, ijodkor profillari va yangiliklar lentasi uchun reklama va e'lon bannerlarini boshqaring.</p>
+          </div>
+          <button class="btn-gold" onclick="openCreateBannerModal()">
+            <i class="mdi mdi-plus-circle-outline"></i>
+            <span>+ Yangi Banner Qo'shish</span>
+          </button>
+        </div>
+
+        <!-- Placement Filter Tabs -->
+        <div style="display:flex; gap:8px; margin-bottom:20px;">
+          <button class="top-link-btn banner-filter-btn active" data-filter="all" onclick="filterBanners('all')">Barchasi</button>
+          <button class="top-link-btn banner-filter-btn" data-filter="home_hero" onclick="filterBanners('home_hero')">🏠 Bosh Sahifa</button>
+          <button class="top-link-btn banner-filter-btn" data-filter="creator_header" onclick="filterBanners('creator_header')">🎙️ Ijodkor Sahifasi</button>
+          <button class="top-link-btn banner-filter-btn" data-filter="feed_ad" onclick="filterBanners('feed_ad')">📰 Lenta Reklamasi</button>
+        </div>
+
+        <div id="fullBannersGrid" class="banners-grid">
+          <!-- Rendered via JS -->
+        </div>
+      </section>
+
+      <!-- TAB 3: CREATORS -->
+      <section id="tab-creators" class="tab-pane">
+        <div class="content-header">
+          <div>
+            <h1>Barcha Ijodkorlar & Mualliflar 👥</h1>
+            <p>Platformada ro'yxatdan o'tgan strimerlar, ularning balansi va statuslari.</p>
+          </div>
+        </div>
+
+        <div class="glass-box">
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Ijodkor</th>
+                  <th>Username</th>
+                  <th>Toifa</th>
+                  <th>Balans</th>
+                  <th>Donatlar Soni</th>
+                  <th>Status</th>
+                  <th>Havola</th>
+                </tr>
+              </thead>
+              <tbody id="creatorsTableBody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: PAYMENTS & FINANCES -->
+      <section id="tab-payments" class="tab-pane">
+        <div class="content-header">
+          <div>
+            <h1>To'lovlar & Tranzaksiyalar Jurnali 💳</h1>
+            <p>Octo, Click va Payme orqali amalga oshirilgan to'lovlar monitoringi.</p>
+          </div>
+          <button class="btn-gold" onclick="loadPayments()">🔄 Yangilash</button>
+        </div>
+
+        <div class="glass-box">
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Vaqt</th>
+                  <th>Muxlis</th>
+                  <th>Ijodkor</th>
+                  <th>Summa</th>
+                  <th>To'lov Tizimi</th>
+                  <th>Xabar</th>
+                  <th>Holati</th>
+                </tr>
+              </thead>
+              <tbody id="paymentsTableBody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: SETTINGS -->
+      <section id="tab-settings" class="tab-pane">
+        <div class="content-header">
+          <div>
+            <h1>Platforma Global Sozlamalari ⚙️</h1>
+            <p>DonatUZ platformasining umumiy texnik parametrlari.</p>
+          </div>
+        </div>
+
+        <div class="glass-box" style="max-width:700px;">
+          <div class="form-group">
+            <label class="form-label">Platforma Nomi</label>
+            <input type="text" class="form-input" value="DonatUZ" id="cfgPlatformName" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Standart Platforma Komissiyasi (%)</label>
+            <input type="number" class="form-input" value="5" id="cfgPlatformFee" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Octo Payment Shop ID</label>
+            <input type="text" class="form-input" value="43006" id="cfgOctoShopId" readonly style="opacity:0.8;" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Octo Webhook Manzili</label>
+            <input type="text" class="form-input" value="http://localhost:3000/api/payments/octo/notify" id="cfgWebhookUrl" readonly style="opacity:0.8;" />
+          </div>
+
+          <button class="btn-gold" style="margin-top:10px;" onclick="showToast('Sozlamalar saqlandi! 💾')">
+            <span>💾 Saqlash</span>
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Modal: Create / Edit Banner -->
+  <div class="admin-modal-overlay" id="bannerModal">
+    <div class="admin-modal-card">
+      <div class="modal-header">
+        <div class="modal-title" id="bannerModalTitle">Yangi Banner Qo'shish</div>
+        <button type="button" class="modal-close" onclick="closeBannerModal()">✕</button>
+      </div>
+
+      <form id="bannerForm" onsubmit="saveBannerSubmit(event)">
+        <input type="hidden" id="bannerEditId" value="" />
+
+        <div class="form-group">
+          <label class="form-label">Banner Sarlavhasi</label>
+          <input type="text" class="form-input" id="bnTitle" required placeholder="Masalan: Yangi studiya aksiyasi" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Quyi Sarlavha (Tavsif)</label>
+          <input type="text" class="form-input" id="bnSubtitle" placeholder="Qisqacha mazmuni yoki shior" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Rasm Havolasi (Image URL)</label>
+          <input type="url" class="form-input" id="bnImageUrl" required placeholder="https://..." />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">O'tish Havolasi (Link URL)</label>
+          <input type="text" class="form-input" id="bnLinkUrl" value="/" placeholder="/trolluz yoki /market" />
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="form-group">
+            <label class="form-label">Joylashuv (Placement)</label>
+            <select class="form-select" id="bnPlacement">
+              <option value="home_hero">🏠 Bosh Sahifa (Hero)</option>
+              <option value="creator_header">🎙️ Ijodkor Sahifasi</option>
+              <option value="feed_ad">📰 Yangiliklar Lentasi</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nishon (Badge)</label>
+            <input type="text" class="form-input" id="bnBadge" value="PROMO" placeholder="PROMO / YANGI" />
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+          <button type="button" class="top-link-btn" onclick="closeBannerModal()">Bekor qilish</button>
+          <button type="submit" class="btn-gold">💾 Saqlash</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="adminToast" class="admin-toast">Xabar</div>
+
+  <script>
+    let allBanners = [];
+    let currentFilter = 'all';
+
+    // Toast
+    function showToast(msg) {
+      const t = document.getElementById('adminToast');
+      t.innerText = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // Tabs
+    function switchTab(tabId) {
+      document.querySelectorAll('.sidebar-nav-item').forEach(el => {
+        el.classList.toggle('active', el.getAttribute('data-tab') === tabId);
+      });
+      document.querySelectorAll('.tab-pane').forEach(el => {
+        el.classList.toggle('active', el.id === 'tab-' + tabId);
+      });
+      if (tabId === 'banners') loadAllBanners();
+      if (tabId === 'creators') loadCreators();
+      if (tabId === 'payments') loadPayments();
+    }
+
+    document.querySelectorAll('.sidebar-nav-item[data-tab]').forEach(item => {
+      item.addEventListener('click', () => switchTab(item.getAttribute('data-tab')));
+    });
+
+    // 1. OVERVIEW
+    async function loadAdminOverview() {
+      try {
+        const res = await fetch('/api/admin/overview');
+        const data = await res.json();
+        if (data.success && data.overview) {
+          const ov = data.overview;
+          document.getElementById('kpiTurnover').innerText = Number(ov.totalTurnover).toLocaleString('uz-UZ') + " so'm";
+          document.getElementById('kpiPlatformFee').innerText = Number(ov.platformFee).toLocaleString('uz-UZ') + " so'm";
+          document.getElementById('kpiCreators').innerText = ov.creatorsCount + " ta";
+          document.getElementById('kpiOctoCount').innerText = ov.octoPaymentsCount + " ta to'lov";
+          document.getElementById('bannersCountBadge').innerText = ov.activeBannersCount;
+        }
+      } catch (err) {
+        console.error('Overview error:', err);
+      }
+    }
+
+    // 2. BANNERS
+    async function loadAllBanners() {
+      try {
+        const res = await fetch('/api/admin/banners');
+        const data = await res.json();
+        if (data.success && data.banners) {
+          allBanners = data.banners;
+          renderBanners(allBanners);
+          renderQuickBanners(allBanners.slice(0, 2));
+        }
+      } catch (err) {
+        console.error('Banners error:', err);
+      }
+    }
+
+    function renderBanners(list) {
+      const container = document.getElementById('fullBannersGrid');
+      const filtered = currentFilter === 'all' ? list : list.filter(b => b.placement === currentFilter);
+
+      if (!filtered || filtered.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-muted); grid-column:1/-1; padding:20px; text-align:center;">Ushbu bo\'limda hozircha bannerlar yo\'q.</div>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(b => {
+        const statusBadge = b.active !== false 
+          ? '<span class="badge-status active">✓ Faol</span>' 
+          : '<span class="badge-status inactive">○ O\'chirilgan</span>';
+
+        return `
+          <div class="banner-card">
+            <img src="${b.imageUrl}" class="banner-card-img" alt="Banner" onerror="this.src='https://tirikchilik.uz/assets/Main1-18bf3998.png'" />
+            <div class="banner-card-body">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="banner-card-badge">${escapeHtml(b.badge || 'PROMO')}</span>
+                ${statusBadge}
+              </div>
+              <div class="banner-card-title">${escapeHtml(b.title)}</div>
+              <div class="banner-card-sub">${escapeHtml(b.subtitle || '')}</div>
+              <div style="font-size:11px; color:var(--sky); margin-top:4px;">📍 ${getPlacementLabel(b.placement)}</div>
+              <div class="banner-card-footer">
+                <button type="button" class="top-link-btn" style="padding:4px 10px; font-size:12px;" onclick="toggleBannerActive('${b.id}', ${!b.active})">
+                  ${b.active ? 'O\'chirish' : 'Yoqish'}
+                </button>
+                <div style="display:flex; gap:6px;">
+                  <button type="button" class="top-link-btn" style="padding:4px 10px; font-size:12px; color:#f43f5e;" onclick="deleteBanner('${b.id}')">
+                    🗑 O\'chirish
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderQuickBanners(list) {
+      const container = document.getElementById('quickBannersList');
+      if (!list || list.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-muted); font-size:13px;">Bannerlar mavjud emas</div>';
+        return;
+      }
+      container.innerHTML = list.map(b => `
+        <div style="display:flex; gap:12px; background:rgba(255,255,255,0.03); border:1px solid var(--panel-border); border-radius:12px; padding:10px;">
+          <img src="${b.imageUrl}" style="width:70px; height:50px; object-fit:cover; border-radius:8px;" />
+          <div>
+            <div style="font-weight:800; font-size:13.5px; color:#fff;">${escapeHtml(b.title)}</div>
+            <div style="font-size:11.5px; color:var(--text-muted);">${getPlacementLabel(b.placement)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterBanners(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.banner-filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-filter') === filter);
+      });
+      renderBanners(allBanners);
+    }
+
+    function getPlacementLabel(p) {
+      if (p === 'home_hero') return 'Bosh Sahifa (Hero)';
+      if (p === 'creator_header') return 'Ijodkor Sahifasi';
+      if (p === 'feed_ad') return 'Yangiliklar Lentasi';
+      return p || 'Bosh Sahifa';
+    }
+
+    function openCreateBannerModal() {
+      document.getElementById('bannerEditId').value = '';
+      document.getElementById('bannerModalTitle').innerText = "Yangi Banner Qo'shish";
+      document.getElementById('bnTitle').value = '';
+      document.getElementById('bnSubtitle').value = '';
+      document.getElementById('bnImageUrl').value = '';
+      document.getElementById('bnLinkUrl').value = '/';
+      document.getElementById('bnBadge').value = 'PROMO';
+      document.getElementById('bannerModal').classList.add('open');
+    }
+
+    function closeBannerModal() {
+      document.getElementById('bannerModal').classList.remove('open');
+    }
+
+    async function saveBannerSubmit(e) {
+      e.preventDefault();
+      const payload = {
+        title: document.getElementById('bnTitle').value.trim(),
+        subtitle: document.getElementById('bnSubtitle').value.trim(),
+        imageUrl: document.getElementById('bnImageUrl').value.trim(),
+        linkUrl: document.getElementById('bnLinkUrl').value.trim(),
+        placement: document.getElementById('bnPlacement').value,
+        badge: document.getElementById('bnBadge').value.trim(),
+        active: true
+      };
+
+      try {
+        const res = await fetch('/api/admin/banners', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast("Yangi banner muvaffaqiyatli saqlandi! 🎉");
+          closeBannerModal();
+          loadAllBanners();
+          loadAdminOverview();
+        } else {
+          showToast("Xato: " + (data.message || 'Saqlab bo\'lmadi'));
+        }
+      } catch (err) {
+        showToast("Tarmoq xatosi yuz berdi");
+      }
+    }
+
+    async function toggleBannerActive(id, newActive) {
+      try {
+        const res = await fetch('/api/admin/banners/' + id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ active: newActive })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(newActive ? "Banner yoqildi! ✓" : "Banner o'chirildi! ○");
+          loadAllBanners();
+        }
+      } catch (err) {
+        showToast("Xatolik yuz berdi");
+      }
+    }
+
+    async function deleteBanner(id) {
+      if (!confirm("Haqiqatdan ham ushbu bannerni o'chirmoqchimisiz?")) return;
+      try {
+        const res = await fetch('/api/admin/banners/' + id, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast("Banner o'chirildi 🗑");
+          loadAllBanners();
+          loadAdminOverview();
+        }
+      } catch (err) {
+        showToast("O'chirishda xatolik");
+      }
+    }
+
+    // 3. CREATORS
+    async function loadCreators() {
+      try {
+        const res = await fetch('/api/admin/creators');
+        const data = await res.json();
+        const tbody = document.getElementById('creatorsTableBody');
+        const quickList = document.getElementById('quickCreatorsList');
+
+        if (data.success && data.creators) {
+          tbody.innerHTML = data.creators.map(c => `
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <img src="${c.avatar}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" onerror="this.src='https://tirikchilik.uz/assets/LogoIcon-4c66e927.svg'" />
+                  <span style="font-weight:800; color:#fff;">${escapeHtml(c.name)}</span>
+                </div>
+              </td>
+              <td style="color:var(--sky); font-family:monospace;">@${escapeHtml(c.username)}</td>
+              <td><span class="badge-status gold">${escapeHtml(c.category || 'Vaynerlar')}</span></td>
+              <td style="font-weight:900; color:var(--gold);">${Number(c.balance || 0).toLocaleString('uz-UZ')} so'm</td>
+              <td>${c.donatesCount || 0} ta</td>
+              <td>
+                ${c.verified 
+                  ? '<span class="badge-status active">✓ Tasdiqlangan</span>' 
+                  : '<span class="badge-status inactive">Oddiy</span>'}
+              </td>
+              <td>
+                <a href="/${c.username}" target="_blank" class="top-link-btn" style="padding:3px 8px; font-size:11.5px;">
+                  Ko'rish ➔
+                </a>
+              </td>
+            </tr>
+          `).join('');
+
+          if (quickList) {
+            quickList.innerHTML = data.creators.slice(0, 4).map(c => `
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:rgba(255,255,255,0.03); border-radius:10px; border:1px solid var(--panel-border);">
+                <span style="font-weight:800; font-size:13px; color:#fff;">${escapeHtml(c.name)}</span>
+                <span style="font-weight:900; color:var(--gold); font-size:12.5px;">${Number(c.balance || 0).toLocaleString('uz-UZ')} so'm</span>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        console.error('Creators error:', err);
+      }
+    }
+
+    // 4. PAYMENTS
+    async function loadPayments() {
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        const tbody = document.getElementById('paymentsTableBody');
+
+        if (data && data.donations) {
+          tbody.innerHTML = data.donations.map(d => `
+            <tr>
+              <td style="color:var(--text-muted); font-size:12px;">${escapeHtml(d.date || '')}</td>
+              <td style="font-weight:800; color:#fff;">${escapeHtml(d.username || 'Anonim')}</td>
+              <td style="color:var(--sky); font-weight:700;">@${escapeHtml(d.creator || 'trolluz')}</td>
+              <td style="font-weight:900; color:var(--gold);">${Number(d.amount).toLocaleString('uz-UZ')} so'm</td>
+              <td><span class="badge-status gold">${escapeHtml(d.paymentMethod || d.system || 'Click')}</span></td>
+              <td style="color:var(--text-muted); max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(d.message || '-')}</td>
+              <td><span class="badge-status active">✓ Qabul qilindi</span></td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        console.error('Payments error:', err);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Init
+    loadAdminOverview();
+    loadAllBanners();
+    loadCreators();
+  </script>
+</body>
+</html>
